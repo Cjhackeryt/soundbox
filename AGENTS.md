@@ -312,7 +312,7 @@ enrollment token only through the project's local .NET User Secrets and remove i
 Do not add a second run configuration or a CLI/executable startup path.
 
 ```bash
-macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.1.macroDeckPlugin --report markdown --output conformance.md
+macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.2.macroDeckPlugin --report markdown --output conformance.md
 ```
 
 The conformance suite drives a real session: capability contracts, invocation and cancellation semantics,
@@ -331,7 +331,7 @@ pass `-p:MacroDeckSdkVersion=<version>` - see "Building against a local SDK buil
 
 ```bash
 macrodeck-plugin build --output ./artifacts
-macrodeck-plugin inspect --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.1.macroDeckPlugin
+macrodeck-plugin inspect --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.2.macroDeckPlugin
 ```
 
 `build` reads `macrodeck-build.json`, publishes each runtime identifier the manifest declares into its

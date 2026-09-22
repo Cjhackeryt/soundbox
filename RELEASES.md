@@ -15,6 +15,22 @@ This document outlines release packages, distribution channels, and installation
 
 ## Release History
 
+### Version 0.1.2 (2026-09-23)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Fixed audio manager initialization so non-Windows test and inspection environments do not attempt to create Windows audio devices.
+- Added a clear unsupported-platform guard for audio playback.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-0.1.2.macroDeckPlugin`
+
+---
+
 ### Version 0.1.1 (2026-09-22)
 
 - **Package ID**: `com.cjhackeryt.soundbox`

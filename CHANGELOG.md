@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
+## [0.1.2] - 2026-09-23
+
+### Fixed
+- Avoided initializing Windows audio devices on non-Windows platforms.
+- Reported unsupported platforms cleanly instead of failing during audio manager construction.
+
 ## [0.1.1] - 2026-09-22
 
 ### Changed
@@ -47,4 +53,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Framework-dependent Windows x64 packaging matching Macro Deck 3 standards.
 - Full localization infrastructure (`Localization/Strings.resx`) for all actions, parameters, dynamic choices, and error messages.
 - Comprehensive unit test suite (`SoundBox.Tests`) validating actions, catalog wiring, and execution error handling.
-
