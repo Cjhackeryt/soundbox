@@ -9,6 +9,10 @@ A high-performance Windows soundboard plugin for **Macro Deck 3**.
 
 ---
 
+<img width="1457" height="886" alt="image" src="https://github.com/user-attachments/assets/bae8c749-f914-4c1c-bec2-98fbb6944a4f" />
+
+---
+
 ## Overview
 
 **SoundBox** (`com.cjhackeryt.soundbox`) turns your Macro Deck 3 setup into a dedicated soundboard. Trigger audio clips, sound effects, background loops, and memes from any Macro Deck client (Android, iOS, or Web) directly to chosen Windows audio outputs.
