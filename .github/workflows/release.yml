@@ -1,40 +1,23 @@
-name: Release Plugin
+# Publishes tagged plugin builds through the Macro Deck Creator Portal.
+name: Publish Plugin to Macro Deck
 
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  id-token: write
 
 jobs:
-  release:
-    name: Package & Publish Release
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
-          dotnet-quality: 'preview'
-
-      - name: Install Macro Deck Plugin CLI
-        run: dotnet tool install -g MacroDeck.Plugin.Cli --prerelease
-
-      - name: Build & Package Plugin
-        run: macrodeck-plugin build --source . --force
-
-      - name: Validate Plugin Artifact
-        run: macrodeck-plugin validate --artifact com.cjhackeryt.soundbox-*.macroDeckPlugin
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          files: "*.macroDeckPlugin"
-          generate_release_notes: true
+  publish:
+    uses: Macro-Deck-App/GitHub-Actions/.github/workflows/publish-plugin.yml@v1
+    with:
+      version: ${{ github.ref_name }}
+      source: .
+      run-tests: true
+      run-stub-host: true
+      cli-version: 3.0.0-preview.10
+      upload-artifact: true
