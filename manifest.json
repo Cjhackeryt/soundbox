@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schemas.macro-deck.app/plugin-manifest-v1.schema.json",
+  "manifestVersion": 1,
+  "id": "com.cjhackeryt.soundbox",
+  "name": "SoundBox",
+  "version": "0.1.0",
+  "description": "A Windows soundboard plugin for Macro Deck 3.",
+  "icon": "Assets/icon.svg",
+  "entrypoints": {
+    "win-x64": { "executable": "runtimes/win-x64/SoundBox.exe" }
+  },
+  "publisher": {
+    "name": "CJHackerYT"
+  },
+  "repository": "https://github.com/cjhackeryt/soundbox",
+  "license": "MIT",
+  "compatibility": {
+    "macroDeck": ">=3.0.0-beta.11"
+  }
+}
