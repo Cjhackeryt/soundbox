@@ -1,5 +1,4 @@
 {
-  "$schema": "https://schemas.macro-deck.app/plugin-manifest-v1.schema.json",
   "manifestVersion": 1,
   "id": "com.cjhackeryt.soundbox",
   "name": "SoundBox",
@@ -7,7 +6,13 @@
   "description": "A Windows soundboard plugin for Macro Deck 3.",
   "icon": "Assets/icon.svg",
   "entrypoints": {
-    "win-x64": { "executable": "runtimes/win-x64/SoundBox.exe" }
+    "win-x64": {
+      "executable": "runtimes/win-x64/SoundBox.dll",
+      "runtime": {
+        "kind": "FrameworkDependent",
+        "dotnetVersion": "10.0"
+      }
+    }
   },
   "publisher": {
     "name": "CJHackerYT"

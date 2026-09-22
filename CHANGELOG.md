@@ -31,5 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core `stop-sound` action to immediately halt active playback across all output endpoints.
 - Low-latency audio backend powered by NAudio and Windows Core Audio (WASAPI shared mode).
 - Asynchronous session cleanup and background disposal to prevent deadlocks on audio threads.
-- Comprehensive documentation (`README.md`, `CHANGELOG.md`, `RELEASES.md`).
-- Self-contained Windows x64 build configuration via `macrodeck-build.json`.
+- Comprehensive documentation (`README.md`, `CHANGELOG.md`, `RELEASES.md`, `AGENTS.md`).
+- Framework-dependent Windows x64 packaging matching Macro Deck 3 standards.
+- Full localization infrastructure (`Localization/Strings.resx`) for all actions, parameters, dynamic choices, and error messages.
+- Comprehensive unit test suite (`SoundBox.Tests`) validating actions, catalog wiring, and execution error handling.
+

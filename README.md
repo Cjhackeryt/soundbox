@@ -79,6 +79,7 @@ Immediately stops any sound currently being played by SoundBox across all output
 ### Prerequisites
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - Windows x64 development environment
+- [Macro Deck Plugin CLI](https://www.nuget.org/packages/MacroDeck.Plugin.Cli) (`dotnet tool install -g MacroDeck.Plugin.Cli`)
 
 ### Build Steps
 
@@ -90,17 +91,22 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 2. Restore packages and compile:
    ```bash
-   dotnet build -c Release
+   dotnet build
    ```
 
-3. Publish self-contained executable for Windows x64:
+3. Run automated tests:
    ```bash
-   dotnet publish SoundBox.csproj -c Release -r win-x64 --self-contained true -o bin/publish/win-x64
+   dotnet test
    ```
 
-4. (Optional) Build package using Macro Deck CLI:
+4. Build and package the plugin (.NET 10 framework-dependent artifact):
    ```bash
-   macrodeck-plugin build
+   macrodeck-plugin build --output ./artifacts
+   ```
+
+5. (Optional) Run the Macro Deck conformance test suite:
+   ```bash
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.0.macroDeckPlugin
    ```
 
 ---

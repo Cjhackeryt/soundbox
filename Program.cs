@@ -4,7 +4,9 @@ using SoundBox;
 
 var plugin = MacroDeckPlugin.CreatePlugin(args)
     .UseMacroDeckLogging()
+    .UseLocalization(Strings.LocalizationCatalog)
     .RegisterIntegration<PluginIntegration>()
     .Build();
 
 await plugin.RunAsync();
+

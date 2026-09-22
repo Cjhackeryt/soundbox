@@ -23,108 +23,112 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
         _logger = logger.ForContext<PlaySoundAction>();
     }
 
-    public string Id => "play-sound";
-    public LocalizedText Name => "Play Sound";
-    public LocalizedText Description => "Plays a sound through a selected Windows audio output.";
-    public MacroDeckPlatform Platforms => MacroDeckPlatform.Windows;
+	public string Id => "play-sound";
+	public LocalizedText Name => Strings.Actions.PlaySound.Name();
+	public LocalizedText Description => Strings.Actions.PlaySound.Description();
+	public MacroDeckPlatform Platforms => MacroDeckPlatform.Windows;
 
-    public IReadOnlyList<ActionParameter> Parameters =>
-    [
-        ActionParameter.File(SoundFile, "Sound File", "WAV and MP3 files are supported.", ["wav", "mp3"], true),
-        ActionParameter.DynamicChoice(OutputDevice, "Output Device", "The Windows output device to receive the sound.", required: true),
-        ActionParameter.Toggle(Monitor, "Monitor Sound", "Also play through the default Windows playback device.", true),
-        ActionParameter.Slider(Volume, 0, 100, "Volume", "Playback volume.", 1, 100),
-        ActionParameter.Toggle(Loop, "Loop", "Restart the sound automatically when it ends.")
-    ];
+	public IReadOnlyList<ActionParameter> Parameters =>
+	[
+		ActionParameter.File(SoundFile, Strings.Actions.PlaySound.SoundFile.Label(), Strings.Actions.PlaySound.SoundFile.Description(), ["wav", "mp3"], true),
+		ActionParameter.DynamicChoice(OutputDevice, Strings.Actions.PlaySound.OutputDevice.Label(), Strings.Actions.PlaySound.OutputDevice.Description(), required: true),
+		ActionParameter.Toggle(Monitor, Strings.Actions.PlaySound.Monitor.Label(), Strings.Actions.PlaySound.Monitor.Description(), true),
+		ActionParameter.Slider(Volume, 0, 100, Strings.Actions.PlaySound.Volume.Label(), Strings.Actions.PlaySound.Volume.Description(), 1, 100),
+		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description())
+	];
 
-    public IActionExecutor CreateExecutor() => new Executor(_audioManager, _logger);
+	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _logger);
 
-    public Task<DynamicOptionsResult> GetDynamicOptionsAsync(DynamicOptionsContext context, CancellationToken cancellationToken)
-    {
-        if (!string.Equals(context.ParameterName, OutputDevice, StringComparison.Ordinal))
-        {
-            return Task.FromResult(new DynamicOptionsResult { Options = [] });
-        }
+	public Task<DynamicOptionsResult> GetDynamicOptionsAsync(DynamicOptionsContext context, CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
 
-        try
-        {
-            var options = new List<ActionParameterOption>
-            {
-                new() { Value = "default", Label = "Windows Default Playback Device" }
-            };
+		if (!string.Equals(context.ParameterName, OutputDevice, StringComparison.Ordinal))
+		{
+			return Task.FromResult(new DynamicOptionsResult { Options = [] });
+		}
 
-            options.AddRange(
-                _audioManager.GetOutputDevices()
-                    .Select(device => new ActionParameterOption { Value = device.Id, Label = device.Name })
-            );
+		try
+		{
+			var options = new List<ActionParameterOption>
+			{
+				new() { Value = "default", Label = Strings.Actions.PlaySound.OutputDevice.DefaultOption() }
+			};
 
-            return Task.FromResult(new DynamicOptionsResult { Options = [.. options], CacheSeconds = 5 });
-        }
-        catch (COMException exception)
-        {
-            _logger.Warning(exception, "Unable to enumerate Windows audio output devices.");
-            return Task.FromResult(new DynamicOptionsResult
-            {
-                Options = [],
-                Error = "Windows audio output devices are unavailable."
-            });
-        }
-    }
+			options.AddRange(
+				_audioManager.GetOutputDevices()
+					.Select(device => new ActionParameterOption { Value = device.Id, Label = device.Name })
+			);
 
-    private sealed class Executor : IActionExecutor
-    {
-        private readonly AudioManager _audioManager;
-        private readonly ILogger _logger;
+			return Task.FromResult(new DynamicOptionsResult { Options = [.. options], CacheSeconds = 5 });
+		}
+		catch (COMException exception)
+		{
+			_logger.Warning(exception, "Unable to enumerate Windows audio output devices.");
+			return Task.FromResult(new DynamicOptionsResult
+			{
+				Options = [],
+				Error = Strings.Actions.PlaySound.OutputDevice.Unavailable()
+			});
+		}
+	}
 
-        public Executor(AudioManager audioManager, ILogger logger)
-        {
-            _audioManager = audioManager;
-            _logger = logger;
-        }
+	private sealed class Executor : IActionExecutor
+	{
+		private readonly AudioManager _audioManager;
+		private readonly ILogger _logger;
 
-        public Task<ActionResult> ExecuteAsync(ActionExecutionContext context)
-        {
-            var rawPath = GetString(context, SoundFile);
-            if (string.IsNullOrWhiteSpace(rawPath))
-            {
-                return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, "A sound file is required."));
-            }
+		public Executor(AudioManager audioManager, ILogger logger)
+		{
+			_audioManager = audioManager;
+			_logger = logger;
+		}
 
-            var filePath = rawPath.Trim('"', ' ');
-            if (!File.Exists(filePath))
-            {
-                return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, $"Sound file does not exist: {filePath}"));
-            }
+		public Task<ActionResult> ExecuteAsync(ActionExecutionContext context)
+		{
+			context.CancellationToken.ThrowIfCancellationRequested();
 
-            var outputDevice = GetString(context, OutputDevice);
-            var monitor = GetBool(context, Monitor, true);
-            var volume = GetInt(context, Volume, 100);
-            var loop = GetBool(context, Loop);
+			var rawPath = GetString(context, SoundFile);
+			if (string.IsNullOrWhiteSpace(rawPath))
+			{
+				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileRequired()));
+			}
 
-            try
-            {
-                return _audioManager.Play(filePath, outputDevice, monitor, volume, loop)
-                    ? ActionResult.SucceededTask
-                    : Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, "No usable audio output device was found."));
-            }
-            catch (Exception exception) when (exception is IOException or InvalidOperationException or ArgumentException or NotSupportedException or COMException)
-            {
-                _logger.Error(exception, "Sound playback failed for {FilePath}", filePath);
-                return Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, "The sound could not be played."));
-            }
-        }
+			var filePath = rawPath.Trim('"', ' ');
+			if (!File.Exists(filePath))
+			{
+				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileNotFound(filePath)));
+			}
 
-        private static string? GetString(ActionExecutionContext context, string name) =>
-            context.Parameters.TryGetValue(name, out var value) ? value?.ToString() : null;
+			var outputDevice = GetString(context, OutputDevice);
+			var monitor = GetBool(context, Monitor, true);
+			var volume = GetInt(context, Volume, 100);
+			var loop = GetBool(context, Loop);
 
-        private static bool GetBool(ActionExecutionContext context, string name, bool defaultValue = false) =>
-            context.Parameters.TryGetValue(name, out var value) && value is not null
-                ? Convert.ToBoolean(value, System.Globalization.CultureInfo.InvariantCulture)
-                : defaultValue;
+			try
+			{
+				return _audioManager.Play(filePath, outputDevice, monitor, volume, loop)
+					? ActionResult.SucceededTask
+					: Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.NoDeviceFound()));
+			}
+			catch (Exception exception) when (exception is IOException or InvalidOperationException or ArgumentException or NotSupportedException or COMException)
+			{
+				_logger.Error(exception, "Sound playback failed for {FilePath}", filePath);
+				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.PlaybackFailed()));
+			}
+		}
 
-        private static int GetInt(ActionExecutionContext context, string name, int defaultValue) =>
-            context.Parameters.TryGetValue(name, out var value) && value is not null
-                ? Convert.ToInt32(value, System.Globalization.CultureInfo.InvariantCulture)
-                : defaultValue;
-    }
+		private static string? GetString(ActionExecutionContext context, string name) =>
+			context.Parameters.TryGetValue(name, out var value) ? value?.ToString() : null;
+
+		private static bool GetBool(ActionExecutionContext context, string name, bool defaultValue = false) =>
+			context.Parameters.TryGetValue(name, out var value) && value is not null
+				? Convert.ToBoolean(value, System.Globalization.CultureInfo.InvariantCulture)
+				: defaultValue;
+
+		private static int GetInt(ActionExecutionContext context, string name, int defaultValue) =>
+			context.Parameters.TryGetValue(name, out var value) && value is not null
+				? Convert.ToInt32(value, System.Globalization.CultureInfo.InvariantCulture)
+				: defaultValue;
+	}
 }

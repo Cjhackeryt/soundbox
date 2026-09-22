@@ -30,6 +30,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Remove="tests\**" />
+        <None Remove="tests\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="manifest.json" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="Assets\icon.svg" CopyToOutputDirectory="PreserveNewest" />
         <Content Include="macrodeck-build.json" CopyToOutputDirectory="PreserveNewest" />
