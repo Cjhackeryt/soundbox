@@ -9,16 +9,25 @@ public sealed class AudioManager : IDisposable
 {
     private readonly object _sync = new();
     private readonly ILogger _logger;
-    private readonly MMDeviceEnumerator _deviceEnumerator = new();
+    private readonly MMDeviceEnumerator? _deviceEnumerator;
     private PlaybackSession? _current;
 
     public AudioManager(ILogger logger)
     {
         _logger = logger.ForContext<AudioManager>();
+        if (OperatingSystem.IsWindows())
+        {
+            _deviceEnumerator = new MMDeviceEnumerator();
+        }
     }
 
     public IReadOnlyList<AudioDevice> GetOutputDevices()
     {
+        if (_deviceEnumerator is null)
+        {
+            return [];
+        }
+
         return _deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
             .Select(device => new AudioDevice(device.ID, device.FriendlyName))
             .ToArray();
@@ -29,6 +38,12 @@ public sealed class AudioManager : IDisposable
         if (!File.Exists(filePath))
         {
             _logger.Warning("Sound file does not exist: {FilePath}", filePath);
+            return false;
+        }
+
+        if (_deviceEnumerator is null)
+        {
+            _logger.Warning("Audio playback is only supported on Windows.");
             return false;
         }
 
@@ -119,11 +134,17 @@ public sealed class AudioManager : IDisposable
 
     private MMDevice? FindDevice(string? deviceId)
     {
+        var deviceEnumerator = _deviceEnumerator;
+        if (deviceEnumerator is null)
+        {
+            return null;
+        }
+
         if (string.IsNullOrWhiteSpace(deviceId) || string.Equals(deviceId, "default", StringComparison.OrdinalIgnoreCase))
         {
             try
             {
-                return _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                return deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             }
             catch (Exception ex) when (ex is COMException or InvalidOperationException)
             {
@@ -134,7 +155,7 @@ public sealed class AudioManager : IDisposable
 
         try
         {
-            return _deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
+            return deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
                 .FirstOrDefault(device => string.Equals(device.ID, deviceId, StringComparison.OrdinalIgnoreCase));
         }
         catch (Exception ex) when (ex is COMException or InvalidOperationException)
@@ -147,7 +168,7 @@ public sealed class AudioManager : IDisposable
     public void Dispose()
     {
         Stop();
-        _deviceEnumerator.Dispose();
+        _deviceEnumerator?.Dispose();
     }
 
     public sealed record AudioDevice(string Id, string Name);
