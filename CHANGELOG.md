@@ -14,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
+## [0.1.1] - 2026-09-22
+
+### Changed
+- Migrated plugin to framework-dependent .NET 10 deployment for Macro Deck 3 host runtime.
+- Reduced packed plugin artifact size from ~307 MB to ~1.5 MB.
+- Removed remote `$schema` URL from `manifest.json` to resolve IDE parsing warnings.
+
+### Added
+- Complete localization infrastructure (`Localization/Strings.resx`) with fully localized actions, parameters, and error codes.
+- Automated unit test suite (`SoundBox.Tests`) covering action configuration, catalog discovery, execution validation, and localization.
+- Centralized project solution (`SoundBox.sln`).
+
 ---
 
 ## [0.1.0] - 2026-09-22

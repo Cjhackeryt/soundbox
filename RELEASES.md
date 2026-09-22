@@ -15,6 +15,24 @@ This document outlines release packages, distribution channels, and installation
 
 ## Release History
 
+### Version 0.1.1 (2026-09-22)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Standardized framework-dependent distribution packaging, reducing archive size from ~307 MB to ~1.5 MB.
+- Full localization architecture via `Localization/Strings.resx` with typed resources for all actions, options, and error messages.
+- Automated unit test suite (`SoundBox.Tests`) and centralized solution (`SoundBox.sln`).
+- Cleaned manifest schema definitions.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-0.1.1.macroDeckPlugin`
+
+---
+
 ### Version 0.1.0 (2026-09-22)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
