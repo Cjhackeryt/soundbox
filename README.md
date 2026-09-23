@@ -110,7 +110,7 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 5. (Optional) Run the Macro Deck conformance test suite:
    ```bash
-   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.3.macroDeckPlugin
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.4.macroDeckPlugin
    ```
 
 ---
@@ -119,5 +119,5 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 - **Plugin ID**: `com.cjhackeryt.soundbox`
 - **Publisher**: `CJHackerYT`
-- **Version**: `0.1.3`
+- **Version**: `0.1.4`
 - **License**: [MIT](LICENSE)

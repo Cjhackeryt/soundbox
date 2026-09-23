@@ -15,6 +15,20 @@ This document outlines release packages, distribution channels, and installation
 
 ## Release History
 
+### Version 0.1.4 (2026-09-23)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Aligned the release workflow CLI with the Macro Deck SDK version.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-0.1.4.macroDeckPlugin`
+
+
 ### Version 0.1.3 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
