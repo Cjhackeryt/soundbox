@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
+## [0.1.5] - 2026-09-23
+
+### Changed
+- Updated the Macro Deck SDK and release CLI to `3.0.0-beta.12`.
+- Raised the minimum supported Macro Deck version to `3.0.0-beta.12`.
+
 ## [0.1.4] - 2026-09-23
 
 ### Changed

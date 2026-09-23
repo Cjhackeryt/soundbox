@@ -36,7 +36,7 @@ With built-in WASAPI low-latency rendering and dual-output audio monitoring, you
 ## System Requirements
 
 - **Operating System**: Windows 10 / Windows 11 (x64)
-- **Macro Deck**: Macro Deck 3 (`>= 3.0.0-beta.11`)
+- **Macro Deck**: Macro Deck 3 (`>= 3.0.0-beta.12`)
 - **Audio Output**: Any active Windows audio playback endpoint (Realtek, USB DAC, VB-Cable, Voicemeeter, etc.)
 
 ---
@@ -110,7 +110,7 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 5. (Optional) Run the Macro Deck conformance test suite:
    ```bash
-   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.4.macroDeckPlugin
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.5.macroDeckPlugin
    ```
 
 ---
@@ -119,5 +119,5 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 - **Plugin ID**: `com.cjhackeryt.soundbox`
 - **Publisher**: `CJHackerYT`
-- **Version**: `0.1.4`
+- **Version**: `0.1.5`
 - **License**: [MIT](LICENSE)

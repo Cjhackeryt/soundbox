@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "com.cjhackeryt.soundbox",
   "name": "SoundBox",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A Windows soundboard plugin for Macro Deck 3.",
   "icon": "Assets/icon.svg",
   "entrypoints": {
@@ -20,6 +20,6 @@
   "repository": "https://github.com/Cjhackeryt/soundbox",
   "license": "MIT",
   "compatibility": {
-    "macroDeck": ">=3.0.0-beta.11"
+    "macroDeck": ">=3.0.0-beta.12"
   }
 }

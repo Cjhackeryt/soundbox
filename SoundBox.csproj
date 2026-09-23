@@ -13,7 +13,7 @@
         <Authors>CJHackerYT</Authors>
         <Product>SoundBox</Product>
         <Description>A Windows soundboard plugin for Macro Deck 3.</Description>
-        <Version>0.1.4</Version>
+        <Version>0.1.5</Version>
     </PropertyGroup>
 
     <ItemGroup>

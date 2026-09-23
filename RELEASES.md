@@ -8,12 +8,27 @@ This document outlines release packages, distribution channels, and installation
 
 | Channel | Target Audience | Compatibility | Recommended Source |
 | :--- | :--- | :--- | :--- |
-| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>= 3.0.0-beta.11` | Macro Deck Extension Store |
+| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>= 3.0.0-beta.12` | Macro Deck Extension Store |
 | **GitHub Releases** | Developers, early testers | Windows 10/11 x64 | `.macroDeckPlugin` release assets |
 
 ---
 
 ## Release History
+
+### Version 0.1.5 (2026-09-23)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Updated the Macro Deck SDK and release CLI to `3.0.0-beta.12`.
+- Raised the minimum supported Macro Deck version to `3.0.0-beta.12`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-0.1.5.macroDeckPlugin`
+
 
 ### Version 0.1.4 (2026-09-23)
 
