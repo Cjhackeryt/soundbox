@@ -8,17 +8,31 @@ This document outlines release packages, distribution channels, and installation
 
 | Channel | Target Audience | Compatibility | Recommended Source |
 | :--- | :--- | :--- | :--- |
-| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>= 3.0.0-beta.11` | Macro Deck Extension Store |
+| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>= 3.0.0-beta.12` | Macro Deck Extension Store |
 | **GitHub Releases** | Developers, early testers | Windows 10/11 x64 | `.macroDeckPlugin` release assets |
 
 ---
 
 ## Release History
 
+### Version 1.0.5 (2026-09-23)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Published the stable 1.0.5 release.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.5.macroDeckPlugin`
+
+
 ### Version 0.1.4 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -32,7 +46,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.3 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -47,7 +61,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.2 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -63,7 +77,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.1 (2026-09-22)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -81,7 +95,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.0 (2026-09-22)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0`
 
