@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Actions.PlaySound.Name" xml:space="preserve">
+    <value>Play Sound</value>
+  </data>
+  <data name="Actions.PlaySound.Description" xml:space="preserve">
+    <value>Plays a sound through a selected Windows audio output.</value>
+  </data>
+  <data name="Actions.PlaySound.SoundFile.Label" xml:space="preserve">
+    <value>Sound File</value>
+  </data>
+  <data name="Actions.PlaySound.SoundFile.Description" xml:space="preserve">
+    <value>WAV and MP3 files are supported.</value>
+  </data>
+  <data name="Actions.PlaySound.OutputDevice.Label" xml:space="preserve">
+    <value>Output Device</value>
+  </data>
+  <data name="Actions.PlaySound.OutputDevice.Description" xml:space="preserve">
+    <value>The Windows output device to receive the sound.</value>
+  </data>
+  <data name="Actions.PlaySound.OutputDevice.DefaultOption" xml:space="preserve">
+    <value>Windows Default Playback Device</value>
+  </data>
+  <data name="Actions.PlaySound.OutputDevice.Unavailable" xml:space="preserve">
+    <value>Windows audio output devices are unavailable.</value>
+  </data>
+  <data name="Actions.PlaySound.Monitor.Label" xml:space="preserve">
+    <value>Monitor Sound</value>
+  </data>
+  <data name="Actions.PlaySound.Monitor.Description" xml:space="preserve">
+    <value>Also play through the default Windows playback device.</value>
+  </data>
+  <data name="Actions.PlaySound.Volume.Label" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Actions.PlaySound.Volume.Description" xml:space="preserve">
+    <value>Playback volume.</value>
+  </data>
+  <data name="Actions.PlaySound.Loop.Label" xml:space="preserve">
+    <value>Loop</value>
+  </data>
+  <data name="Actions.PlaySound.Loop.Description" xml:space="preserve">
+    <value>Restart the sound automatically when it ends.</value>
+  </data>
+  <data name="Actions.PlaySound.Errors.SoundFileRequired" xml:space="preserve">
+    <value>A sound file is required.</value>
+  </data>
+  <data name="Actions.PlaySound.Errors.SoundFileNotFound" xml:space="preserve">
+    <value>Sound file does not exist: {filePath}</value>
+    <comment>{filePath}</comment>
+  </data>
+  <data name="Actions.PlaySound.Errors.NoDeviceFound" xml:space="preserve">
+    <value>No usable audio output device was found.</value>
+  </data>
+  <data name="Actions.PlaySound.Errors.PlaybackFailed" xml:space="preserve">
+    <value>The sound could not be played.</value>
+  </data>
+  <data name="Actions.StopSound.Name" xml:space="preserve">
+    <value>Stop Sound</value>
+  </data>
+  <data name="Actions.StopSound.Description" xml:space="preserve">
+    <value>Stops the currently playing SoundBox sound.</value>
+  </data>
+  <data name="Actions.StopSound.Errors.StopFailed" xml:space="preserve">
+    <value>The sound could not be stopped.</value>
+  </data>
+</root>

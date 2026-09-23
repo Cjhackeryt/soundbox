@@ -1,0 +1,23 @@
+## Build and output directories
+bin/
+obj/
+artifacts/
+
+## Generated packages
+*.macroDeckPlugin
+
+## IDE and user settings
+.vs/
+.idea/
+.vscode/
+*.user
+*.userprefs
+*.suo
+*.sln.docstates
+
+## OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store

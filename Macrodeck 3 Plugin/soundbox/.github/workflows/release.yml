@@ -1,0 +1,24 @@
+# Publishes tagged plugin builds through the Macro Deck Creator Portal.
+name: Publish Plugin to Macro Deck
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    uses: Macro-Deck-App/GitHub-Actions/.github/workflows/publish-plugin.yml@v1
+    with:
+      version: 0.1.4
+      source: .
+      run-tests: true
+      run-stub-host: true
+      # Keep this aligned with MacroDeckSdkVersion in Directory.Packages.props.
+      cli-version: 3.0.0-beta.11
+      upload-artifact: true
