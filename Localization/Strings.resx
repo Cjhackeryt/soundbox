@@ -122,4 +122,10 @@
   <data name="Actions.StopSound.Errors.StopFailed" xml:space="preserve">
     <value>The sound could not be stopped.</value>
   </data>
+  <data name="Variables.PlaybackRemaining.DisplayName" xml:space="preserve">
+    <value>Playback Remaining</value>
+  </data>
+  <data name="Variables.PlaybackRemaining.Description" xml:space="preserve">
+    <value>Deprecated: Play Sound now shows its own countdown on the widget, so this is no longer needed. Time left in the sound that is currently playing, as MM:SS. Reads 00:00 when nothing is playing.</value>
+  </data>
 </root>

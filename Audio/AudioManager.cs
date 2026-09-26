@@ -11,6 +11,7 @@ public sealed class AudioManager : IDisposable
     private readonly ILogger _logger;
     private readonly MMDeviceEnumerator? _deviceEnumerator;
     private PlaybackSession? _current;
+    private long _playbackVersion;
 
     public AudioManager(ILogger logger)
     {
@@ -97,6 +98,7 @@ public sealed class AudioManager : IDisposable
             lock (_sync)
             {
                 _current = session;
+                _playbackVersion++;
             }
 
             session.Start();
@@ -115,10 +117,55 @@ public sealed class AudioManager : IDisposable
         lock (_sync)
         {
             session = _current;
-            _current = null;
+            if (session is not null)
+            {
+                _current = null;
+                _playbackVersion++;
+            }
         }
 
         session?.Dispose();
+    }
+
+    /// <summary>
+    /// Monotonic id of the current playback. It advances whenever the active playback is
+    /// replaced, stopped or finishes, so a caller can tell that the playback it was
+    /// observing is no longer the one running.
+    /// </summary>
+    public long PlaybackVersion
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _playbackVersion;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Reports the time left in the active playback, derived from the reader's own position
+    /// rather than a separate clock, so the countdown tracks the audio the device is consuming.
+    /// </summary>
+    public bool TryGetRemainingPlaybackTime(out TimeSpan remaining) =>
+        TryGetRemainingPlaybackTime(out remaining, out _);
+
+    /// <summary>
+    /// Reports the time left in the active playback together with the id of that playback.
+    /// Returns false when nothing is playing.
+    /// </summary>
+    public bool TryGetRemainingPlaybackTime(out TimeSpan remaining, out long playbackVersion)
+    {
+        remaining = TimeSpan.Zero;
+
+        PlaybackSession? session;
+        lock (_sync)
+        {
+            session = _current;
+            playbackVersion = _playbackVersion;
+        }
+
+        return session is not null && session.TryGetRemaining(out remaining);
     }
 
     private void OnSessionFinished(PlaybackSession session)
@@ -128,6 +175,7 @@ public sealed class AudioManager : IDisposable
             if (ReferenceEquals(_current, session))
             {
                 _current = null;
+                _playbackVersion++;
             }
         }
     }
@@ -182,6 +230,8 @@ public sealed class AudioManager : IDisposable
         private readonly ILogger _logger;
         private readonly Action<PlaybackSession>? _onFinished;
         private readonly List<(AudioFileReader Reader, WasapiOut Output)> _players = [];
+        // Guards _players so the countdown read and reader disposal cannot observe each other mid-flight.
+        private readonly object _positionSync = new();
         private int _stopping;
 
         public PlaybackSession(string filePath, IReadOnlyList<MMDevice> outputs, float volume, bool loop, ILogger logger, Action<PlaybackSession>? onFinished = null)
@@ -203,7 +253,10 @@ public sealed class AudioManager : IDisposable
                     var reader = new AudioFileReader(_filePath) { Volume = _volume };
                     var output = new WasapiOut(device, AudioClientShareMode.Shared, true, 100);
                     output.PlaybackStopped += (_, _) => HandlePlaybackStopped(reader, output);
-                    _players.Add((reader, output));
+                    lock (_positionSync)
+                    {
+                        _players.Add((reader, output));
+                    }
                     output.Init(reader);
                     output.Play();
                 }
@@ -238,6 +291,37 @@ public sealed class AudioManager : IDisposable
             }
         }
 
+        public bool TryGetRemaining(out TimeSpan remaining)
+        {
+            remaining = TimeSpan.Zero;
+
+            lock (_positionSync)
+            {
+                // Disposal nulls the reader's inner stream, so a stopped session must never be sampled.
+                if (Volatile.Read(ref _stopping) != 0 || _players.Count == 0)
+                {
+                    return false;
+                }
+
+                try
+                {
+                    var reader = _players[0].Reader;
+                    remaining = reader.TotalTime - reader.CurrentTime;
+                    if (remaining < TimeSpan.Zero)
+                    {
+                        remaining = TimeSpan.Zero;
+                    }
+
+                    return true;
+                }
+                catch (Exception exception) when (exception is IOException or InvalidOperationException or ObjectDisposedException)
+                {
+                    _logger.Debug(exception, "Unable to sample the SoundBox playback position.");
+                    return false;
+                }
+            }
+        }
+
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _stopping, 1) != 0)
@@ -247,21 +331,25 @@ public sealed class AudioManager : IDisposable
 
             _onFinished?.Invoke(this);
 
-            foreach (var (reader, output) in _players)
+            lock (_positionSync)
             {
-                try
+                foreach (var (reader, output) in _players)
                 {
-                    output.Stop();
-                    output.Dispose();
-                    reader.Dispose();
+                    try
+                    {
+                        output.Stop();
+                        output.Dispose();
+                        reader.Dispose();
+                    }
+                    catch (Exception exception)
+                    {
+                        _logger.Warning(exception, "Error disposing audio player resources.");
+                    }
                 }
-                catch (Exception exception)
-                {
-                    _logger.Warning(exception, "Error disposing audio player resources.");
-                }
+
+                _players.Clear();
             }
 
-            _players.Clear();
             foreach (var device in _outputs)
             {
                 try

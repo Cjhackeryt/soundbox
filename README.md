@@ -2,7 +2,7 @@
 
 A high-performance Windows soundboard plugin for **Macro Deck 3**.
 
-[![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.11+-blue.svg)](https://macro-deck.app)
+[![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.14+-blue.svg)](https://macro-deck.app)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Publisher](https://img.shields.io/badge/Publisher-CJHackerYT-orange.svg)]()
@@ -28,6 +28,7 @@ With built-in WASAPI low-latency rendering and dual-output audio monitoring, you
 - 🎧 **Dual-Output Monitoring**: Concurrently echo the sound to your default Windows playback device (e.g., headset/speakers) so you always hear what you play.
 - 🔊 **Fine-Grained Volume**: Dedicated volume slider (0% to 100%) for custom sound balancing.
 - 🔁 **Continuous Looping**: Repeat sounds indefinitely until manually stopped.
+- ⏳ **Per-Widget Countdown**: While a sound plays, the button you pressed counts down the remaining time, then returns to its own text and icon.
 - ⏹️ **Instant Stop Control**: Dedicated "Stop Sound" action to immediately halt playback.
 - ⚡ **Low-Latency WASAPI Engine**: Powered by NAudio and Windows Core Audio APIs in shared mode for glitch-free, responsive playback without blocking the Macro Deck host.
 
@@ -56,6 +57,47 @@ Plays a sound file through the selected Windows audio output device.
 
 ### 2. Stop Sound (`stop-sound`)
 Immediately stops any sound currently being played by SoundBox across all output devices.
+
+---
+
+## Per-Widget Countdown
+
+There is nothing to configure. Press a button and it counts itself down:
+
+```text
+    Airhorn              00:07              Airhorn
+   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+   │   🔊 Airhorn │ →  │     00:07    │ →  │   🔊 Airhorn │
+   └──────────────┘    └──────────────┘    └──────────────┘
+     not playing         playing            finished
+```
+
+The remaining time is read from the audio engine's own playback position, so the number matches the sound you are hearing rather than a separate timer. A widget's countdown belongs to that button alone, so buttons stay independent:
+
+| You press | That button | Other buttons |
+| :--- | :--- | :--- |
+| Button 1 (Airhorn, 5 s) | counts down from `00:05` | unchanged |
+| Button 2 (Applause, 10 s) while Button 1 plays | Button 1 returns to normal, Button 2 counts down from `00:10` | unchanged |
+| Button 3 (Laugh, 15 s) | Button 3 counts down from `00:15` | Button 2 unaffected |
+
+Each button shows the length of the sound configured on **that** button, in `MM:SS`, widening to `HH:MM:SS` past an hour.
+
+**Behaviour details**
+
+- The countdown updates about every 300 ms, and only when the displayed second actually changes.
+- When a sound finishes on its own the widget returns to its configured text and icon. `00:00` is never left on screen.
+- With **Loop** enabled the countdown resets each time the sound loops, and the widget only returns to normal when playback is actually stopped.
+- Pressing **Stop Sound** restores every widget that was counting straight away.
+- Pressing the same button again while it is playing restarts that button's countdown from the beginning, matching the existing restart behaviour.
+- SoundBox plays one sound at a time, so pressing a second sound button ends the first; the first button returns to its configured state.
+
+---
+
+## Deprecated: `soundbox_playback_remaining`
+
+Earlier releases exposed the remaining time as a Macro Deck text variable you had to add to a button yourself. Play Sound now does this on the widget automatically, so the variable is **no longer needed**.
+
+It still exists and keeps working, purely so configurations that already reference it are not broken. If you previously added `{soundbox_playback_remaining}` to a button, you can remove it and rely on the built-in countdown.
 
 ---
 
@@ -110,7 +152,7 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 5. (Optional) Run the Macro Deck conformance test suite:
    ```bash
-   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.5.macroDeckPlugin
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.7.macroDeckPlugin
    ```
 
 ---
@@ -119,5 +161,5 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 - **Plugin ID**: `com.cjhackeryt.soundbox`
 - **Publisher**: `CJHackerYT`
-- **Version**: `0.1.5`
+- **Version**: `1.0.7`
 - **License**: [MIT](LICENSE)

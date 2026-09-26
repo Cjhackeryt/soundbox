@@ -15,7 +15,7 @@ This document outlines release packages, distribution channels, and installation
 
 ## Release History
 
-### Version 0.1.5 (2026-09-23)
+### Version 1.0.7 (2026-09-27)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
 - **Minimum Macro Deck Version**: `3.0.0-beta.12`
@@ -23,17 +23,48 @@ This document outlines release packages, distribution channels, and installation
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
 #### Highlights
-- Updated the Macro Deck SDK and release CLI to `3.0.0-beta.12`.
-- Raised the minimum supported Macro Deck version to `3.0.0-beta.12`.
+- Play Sound shows a live countdown on the widget that was pressed, then restores that widget's configured text and icon when the sound ends. Nothing extra to configure.
+- Countdowns are per action instance, so separate sound buttons remain independent and each shows the length of its own sound.
+- The `soundbox_playback_remaining` variable is kept for existing configurations but is no longer required.
 
 #### Artifacts
-- `com.cjhackeryt.soundbox-0.1.5.macroDeckPlugin`
+- `com.cjhackeryt.soundbox-1.0.7.macroDeckPlugin`
+
+
+### Version 1.0.6 (2026-09-27)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Added the Macro Deck text variable `soundbox_playback_remaining`, which shows the time left in the active playback as `MM:SS` (`HH:MM:SS` past an hour).
+- The value comes from the audio engine's own playback position, so the countdown matches the audio, wraps on loop restarts, and reports `00:00` when idle, stopped, or finished.
+- Built against Macro Deck SDK `3.0.0-beta.14` (up from `3.0.0-beta.12`). Required host compatibility is unchanged at `3.0.0-beta.12`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.6.macroDeckPlugin`
+
+
+### Version 1.0.5 (2026-09-23)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Published the stable 1.0.5 release.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.5.macroDeckPlugin`
 
 
 ### Version 0.1.4 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -47,7 +78,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.3 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -62,7 +93,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.2 (2026-09-23)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -78,7 +109,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.1 (2026-09-22)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0` (Framework-Dependent)
 
@@ -96,7 +127,7 @@ This document outlines release packages, distribution channels, and installation
 ### Version 0.1.0 (2026-09-22)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
-- **Minimum Macro Deck Version**: `3.0.0-beta.11`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
 - **Supported Platforms**: `win-x64`
 - **Target Framework**: `.NET 10.0`
 

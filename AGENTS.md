@@ -15,18 +15,29 @@ SoundBox.csproj              the plugin project targeting net10.0 (win-x64)
 Program.cs                   builder chain: CreatePlugin -> UseMacroDeckLogging -> UseLocalization -> RegisterIntegration -> Build -> RunAsync
 manifest.json                identity, icon, win-x64 framework-dependent entrypoint
 macrodeck-build.json         win-x64 framework-dependent publish target
-PluginIntegration.cs         the integration: lifecycle and action registration
+PluginIntegration.cs         the integration: lifecycle, action registration, and the variable provider
 Actions/
   PlaySoundAction.cs         plays audio file to selected output device with monitoring and looping
   StopSoundAction.cs         stops the currently playing sound
 Audio/
   AudioManager.cs            core audio playback and WASAPI routing engine (NAudio)
+Playback/
+  RemainingTimeFormatter.cs  the shared MM:SS / HH:MM:SS formatter for a remaining duration
+Widgets/
+  PlaybackCountdownService.cs  per-widget countdown, one independent session per pressed widget
+Variables/
+  PlaybackRemainingVariableProvider.cs  the deprecated soundbox_playback_remaining text variable
 Localization/
   Strings.resx               default-culture strings; Strings.<tag>.resx per language
 Assets/
   icon.svg                   the icon the manifest declares
 tests/SoundBox.Tests/
   PluginIntegrationTests.cs  tests for actions, catalog wiring, and execution validation
+  PlaybackCountdownWidgetTests.cs  per-widget countdown driven through the real actions
+  PlaybackRemainingPlaybackTests.cs  end-to-end countdown against real audio output
+  PlaybackRemainingVariableProviderTests.cs  variable declaration, idle reads, and formatting
+  RecordingWidgetApi.cs      captures the appearance requests a widget would receive
+  TestWave.cs                generates silent WAVs so playback tests need no binary asset
 ```
 
 Authoritative upstream documentation, in the

@@ -4,6 +4,7 @@ using MacroDeck.Sdk;
 using MacroDeck.Sdk.Actions;
 using Serilog;
 using SoundBox.Audio;
+using SoundBox.Widgets;
 
 namespace SoundBox.Actions;
 
@@ -15,11 +16,13 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
     private const string Volume = "volume";
     private const string Loop = "loop";
     private readonly AudioManager _audioManager;
+    private readonly PlaybackCountdownService _countdown;
     private readonly ILogger _logger;
 
-    public PlaySoundAction(AudioManager audioManager, ILogger logger)
+    public PlaySoundAction(AudioManager audioManager, PlaybackCountdownService countdown, ILogger logger)
     {
         _audioManager = audioManager;
+        _countdown = countdown;
         _logger = logger.ForContext<PlaySoundAction>();
     }
 
@@ -37,7 +40,7 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description())
 	];
 
-	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _logger);
+	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _countdown, _logger);
 
 	public Task<DynamicOptionsResult> GetDynamicOptionsAsync(DynamicOptionsContext context, CancellationToken cancellationToken)
 	{
@@ -76,28 +79,30 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 	private sealed class Executor : IActionExecutor
 	{
 		private readonly AudioManager _audioManager;
+		private readonly PlaybackCountdownService _countdown;
 		private readonly ILogger _logger;
 
-		public Executor(AudioManager audioManager, ILogger logger)
+		public Executor(AudioManager audioManager, PlaybackCountdownService countdown, ILogger logger)
 		{
 			_audioManager = audioManager;
+			_countdown = countdown;
 			_logger = logger;
 		}
 
-		public Task<ActionResult> ExecuteAsync(ActionExecutionContext context)
+		public async Task<ActionResult> ExecuteAsync(ActionExecutionContext context)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 
 			var rawPath = GetString(context, SoundFile);
 			if (string.IsNullOrWhiteSpace(rawPath))
 			{
-				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileRequired()));
+				return ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileRequired());
 			}
 
 			var filePath = rawPath.Trim('"', ' ');
 			if (!File.Exists(filePath))
 			{
-				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileNotFound(filePath)));
+				return ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileNotFound(filePath));
 			}
 
 			var outputDevice = GetString(context, OutputDevice);
@@ -107,15 +112,25 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 
 			try
 			{
-				return _audioManager.Play(filePath, outputDevice, monitor, volume, loop)
-					? ActionResult.SucceededTask
-					: Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.NoDeviceFound()));
+				if (!_audioManager.Play(filePath, outputDevice, monitor, volume, loop))
+				{
+					return ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.NoDeviceFound());
+				}
 			}
 			catch (Exception exception) when (exception is IOException or InvalidOperationException or ArgumentException or NotSupportedException or COMException)
 			{
 				_logger.Error(exception, "Sound playback failed for {FilePath}", filePath);
-				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.PlaybackFailed()));
+				return ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.PlaybackFailed());
 			}
+
+			// The countdown belongs to the widget that was pressed, so it is driven by this
+			// action instance's own widget rather than by a shared variable.
+			if (context.OwnerWidgetId is { Length: > 0 } ownerWidgetId)
+			{
+				await _countdown.StartAsync(ownerWidgetId, context.CancellationToken);
+			}
+
+			return ActionResult.Success();
 		}
 
 		private static string? GetString(ActionExecutionContext context, string name) =>

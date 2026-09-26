@@ -5,6 +5,7 @@ using Serilog;
 using SoundBox;
 using SoundBox.Actions;
 using SoundBox.Audio;
+using SoundBox.Widgets;
 using Xunit;
 
 namespace SoundBox.Tests;
@@ -30,7 +31,8 @@ public sealed class PluginIntegrationTests
 	public void PlaySoundActionHasExpectedConfiguration()
 	{
 		using var audioManager = new AudioManager(_logger);
-		var action = new PlaySoundAction(audioManager, _logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var action = new PlaySoundAction(audioManager, countdown, _logger);
 
 		Assert.Equal("play-sound", action.Id);
 		Assert.Equal(MacroDeckPlatform.Windows, action.Platforms);
@@ -48,7 +50,8 @@ public sealed class PluginIntegrationTests
 	public async Task PlaySoundActionExecuteWithoutFileFails()
 	{
 		using var audioManager = new AudioManager(_logger);
-		var action = new PlaySoundAction(audioManager, _logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var action = new PlaySoundAction(audioManager, countdown, _logger);
 		var executor = action.CreateExecutor();
 
 		var context = new ActionExecutionContext
@@ -66,7 +69,8 @@ public sealed class PluginIntegrationTests
 	public async Task PlaySoundActionExecuteWithNonExistentFileFails()
 	{
 		using var audioManager = new AudioManager(_logger);
-		var action = new PlaySoundAction(audioManager, _logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var action = new PlaySoundAction(audioManager, countdown, _logger);
 		var executor = action.CreateExecutor();
 
 		var context = new ActionExecutionContext
@@ -87,7 +91,8 @@ public sealed class PluginIntegrationTests
 	public async Task StopSoundActionExecuteSucceeds()
 	{
 		using var audioManager = new AudioManager(_logger);
-		var action = new StopSoundAction(audioManager, _logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var action = new StopSoundAction(audioManager, countdown, _logger);
 		var executor = action.CreateExecutor();
 
 		var context = new ActionExecutionContext

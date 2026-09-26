@@ -14,11 +14,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
-## [0.1.5] - 2026-09-23
+## [1.0.7] - 2026-09-27
+
+### Added
+- Play Sound now counts down on its own widget while the sound plays, and returns the widget to its configured text and icon when playback ends. No variable, widget or extra configuration is needed.
+- Each Play Sound action instance drives its own countdown from its own `OwnerWidgetId`, so several sound buttons stay independent and each one shows the duration of the sound configured on it.
 
 ### Changed
-- Updated the Macro Deck SDK and release CLI to `3.0.0-beta.12`.
-- Raised the minimum supported Macro Deck version to `3.0.0-beta.12`.
+- Marked the `soundbox_playback_remaining` variable as deprecated in its description. It still works for configurations that already reference it, but the widget countdown no longer depends on it.
+
+## [1.0.6] - 2026-09-27
+
+### Added
+- New Macro Deck text variable `soundbox_playback_remaining` showing the time left in the currently playing sound as `MM:SS` (widening to `HH:MM:SS` past an hour).
+- The variable is derived from the audio engine's live playback position, so it stays in step with what is being heard, follows loop restarts, and reads `00:00` whenever nothing is playing.
+- The variable refreshes roughly every 300 ms while it is bound, with no additional timer or background thread in the plugin.
+- Automated tests that play real audio through a Windows output device and assert the countdown, plus generated silent WAV fixtures so the suite needs no binary asset.
+
+### Changed
+- Upgraded the Macro Deck SDK from `3.0.0-beta.12` to `3.0.0-beta.14` and pinned the release workflow's Macro Deck Plugin CLI to the same version. The plugin's `IVariableProvider` contract and the negotiated protocol range are unchanged between the two releases, so required host compatibility stays at `>= 3.0.0-beta.12`.
+
+## [1.0.5] - 2026-09-23
+
+### Changed
+- Published the stable 1.0.5 release.
+
+## [0.1.6] - 2026-09-23
+
+### Documentation
+- Added release documentation for the Macro Deck SDK `3.0.0-beta.12` upgrade.
 
 ## [0.1.4] - 2026-09-23
 
