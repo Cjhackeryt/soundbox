@@ -36,7 +36,7 @@ public sealed class PluginIntegrationTests
 
 		Assert.Equal("play-sound", action.Id);
 		Assert.Equal(MacroDeckPlatform.Windows, action.Platforms);
-		Assert.Equal(5, action.Parameters.Count);
+		Assert.Equal(6, action.Parameters.Count);
 
 		var parameterNames = action.Parameters.Select(p => p.Name).ToArray();
 		Assert.Contains("soundFile", parameterNames);
@@ -44,6 +44,10 @@ public sealed class PluginIntegrationTests
 		Assert.Contains("monitor", parameterNames);
 		Assert.Contains("volume", parameterNames);
 		Assert.Contains("loop", parameterNames);
+		Assert.Contains("showTimer", parameterNames);
+
+		var timer = action.Parameters.Single(p => p.Name == "showTimer");
+		Assert.Equal(true, timer.DefaultValue);
 
 		var secondary = action.Parameters.Single(p => p.Name == "outputDevice");
 		Assert.False(secondary.Required);

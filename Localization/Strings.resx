@@ -100,6 +100,12 @@
   <data name="Actions.PlaySound.Loop.Description" xml:space="preserve">
     <value>Restart the sound automatically when it ends.</value>
   </data>
+  <data name="Actions.PlaySound.ShowTimer.Label" xml:space="preserve">
+    <value>Show Timer</value>
+  </data>
+  <data name="Actions.PlaySound.ShowTimer.Description" xml:space="preserve">
+    <value>Show the remaining time on the button while the sound plays. When off, the button text is left untouched.</value>
+  </data>
   <data name="Actions.PlaySound.Errors.SoundFileRequired" xml:space="preserve">
     <value>A sound file is required.</value>
   </data>

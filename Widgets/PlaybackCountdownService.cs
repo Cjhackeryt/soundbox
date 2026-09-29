@@ -202,8 +202,13 @@ public sealed class PlaybackCountdownService : IDisposable
                 return;
             }
 
-            // Clearing the label override drops back to the widget's configured text and icon.
-            await ApplyAsync(new WidgetAppearancePatch(), [WidgetAppearanceProperty.Label], cancellationToken);
+            // Drop the label override so the widget shows its configured text and icon again.
+            // Both the reset sentinel in the patch and the cleared property are sent: hosts
+            // honour at least one of them, and either one alone has left widgets blank.
+            await ApplyAsync(
+                new WidgetAppearancePatch { Label = WidgetAppearanceValues.Reset },
+                [WidgetAppearanceProperty.Label],
+                cancellationToken);
             _lastLabel = null;
         }
 
@@ -255,6 +260,7 @@ public sealed class PlaybackCountdownService : IDisposable
             var request = new WidgetAppearanceRequest
             {
                 WidgetId = _widgetId,
+                StateIds = [WidgetStates.Current],
                 Patch = patch,
                 ClearProperties = clear
             };

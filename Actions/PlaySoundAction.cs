@@ -16,6 +16,7 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
     private const string Monitor = "monitor";
     private const string Volume = "volume";
     private const string Loop = "loop";
+    private const string ShowTimer = "showTimer";
     private readonly AudioManager _audioManager;
     private readonly PlaybackCountdownService _countdown;
     private readonly PlaybackRouting _routing;
@@ -46,7 +47,8 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 		ActionParameter.DynamicChoice(OutputDevice, Strings.Actions.PlaySound.OutputDevice.Label(), Strings.Actions.PlaySound.OutputDevice.Description(), required: false),
 		ActionParameter.Toggle(Monitor, Strings.Actions.PlaySound.Monitor.Label(), Strings.Actions.PlaySound.Monitor.Description(), true),
 		ActionParameter.Slider(Volume, 0, 100, Strings.Actions.PlaySound.Volume.Label(), Strings.Actions.PlaySound.Volume.Description(), 1, 100),
-		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description())
+		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description()),
+		ActionParameter.Toggle(ShowTimer, Strings.Actions.PlaySound.ShowTimer.Label(), Strings.Actions.PlaySound.ShowTimer.Description(), true)
 	];
 
 	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _countdown, _routing, _logger);
@@ -125,6 +127,7 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 			var monitor = GetBool(context, Monitor, true);
 			var volume = GetInt(context, Volume, 100);
 			var loop = GetBool(context, Loop);
+			var showTimer = GetBool(context, ShowTimer, true);
 
 			try
 			{
@@ -140,8 +143,10 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 			}
 
 			// The countdown belongs to the widget that was pressed, so it is driven by this
-			// action instance's own widget rather than by a shared variable.
-			if (context.OwnerWidgetId is { Length: > 0 } ownerWidgetId)
+			// action instance's own widget rather than by a shared variable. When the timer
+			// is off the widget is left completely alone: no override is ever applied, so
+			// there is nothing to restore afterwards either.
+			if (showTimer && context.OwnerWidgetId is { Length: > 0 } ownerWidgetId)
 			{
 				await _countdown.StartAsync(ownerWidgetId, context.CancellationToken);
 			}

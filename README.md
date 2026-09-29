@@ -56,6 +56,7 @@ Plays a sound file through the primary output device from the plugin settings, p
 | **Monitor Sound** | Toggle | No | Also plays sound through the default Windows playback device. | `true` |
 | **Volume** | Slider (0–100%) | No | Adjusts playback volume. | `100` |
 | **Loop** | Toggle | No | Automatically restarts playback when the file reaches the end. | `false` |
+| **Show Timer** | Toggle | No | Shows the remaining time on the button while the sound plays. When off, the button text is left untouched. | `true` |
 
 Set the **Primary Output Device** once on the plugin configuration page. Each button then optionally adds its own secondary output.
 
@@ -66,7 +67,12 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 ## Per-Widget Countdown
 
-There is nothing to configure. Press a button and it counts itself down:
+Each button can show the remaining time while its sound plays, or leave its text alone:
+
+- **Show Timer ON** (default): pressing the button replaces its label with the countdown, then restores the configured text and icon when playback ends.
+- **Show Timer OFF**: the button text is never touched.
+
+There is nothing else to configure. Press a button and it counts itself down:
 
 ```text
     Airhorn              00:07              Airhorn

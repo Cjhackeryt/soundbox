@@ -17,7 +17,7 @@ manifest.json                identity, icon, win-x64 framework-dependent entrypo
 macrodeck-build.json         win-x64 framework-dependent publish target
 PluginIntegration.cs         the integration: lifecycle, action registration, primary-output config flow, and the variable provider
 Actions/
-  PlaySoundAction.cs         plays audio file to the primary output plus an optional secondary output, with monitoring and looping
+  PlaySoundAction.cs         plays audio file to the primary output plus an optional secondary output, with monitoring, looping, and a per-widget timer toggle
   StopSoundAction.cs         stops the currently playing sound
 Config/
   SoundBoxConfigFlow.cs      single-step config flow for the primary output device

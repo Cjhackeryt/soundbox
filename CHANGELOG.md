@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - The secondary output picker no longer comes back empty when device enumeration fails; it always offers at least the Windows default device so the action stays playable.
+- Fixed the [1.0.7] countdown restore leaving the button blank instead of returning its configured text: Play Sound has a per-button **Show Timer** toggle. With it off, the widget label is never overridden, so it can no longer be left blank. With it on, the countdown restore now targets the widget's current state and sends the reset sentinel together with the cleared label, so the original name comes back reliably.
 
 ## [1.0.7] - 2026-09-27
 
@@ -31,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Marked the `soundbox_playback_remaining` variable as deprecated in its description. It still works for configurations that already reference it, but the widget countdown no longer depends on it.
+
+### Known issue (fixed in 1.0.8)
+- Restoring the widget after the countdown could leave the button blank instead of returning its configured text. 1.0.8 adds a per-button **Show Timer** toggle and a hardened restore.
 
 ## [1.0.6] - 2026-09-27
 

@@ -215,6 +215,26 @@ public sealed class PlaybackCountdownWidgetTests
 		await countdown.ResetAllAsync(CancellationToken.None);
 	}
 
+	[RequiresAudioDeviceFact]
+	public async Task TimerOffLeavesTheWidgetCompletelyUntouched()
+	{
+		var path = CreateWave("timer-off-5s.wav", TimeSpan.FromSeconds(5));
+
+		using var audioManager = new AudioManager(_logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var widgets = new RecordingWidgetApi();
+		countdown.Attach(widgets);
+
+		var result = await PlayAsync(audioManager, countdown, path, "widget-quiet", showTimer: false);
+		Assert.Equal(ActionResultStatus.Succeeded, result.Status);
+
+		await Task.Delay(1200);
+
+		Assert.DoesNotContain(widgets.Requests, r => r.WidgetId == "widget-quiet");
+
+		await countdown.ResetAllAsync(CancellationToken.None);
+	}
+
 	[Fact]
 	public async Task DisposingTheServiceStopsAllUpdatesAndCleansUp()
 	{
@@ -233,7 +253,7 @@ public sealed class PlaybackCountdownWidgetTests
 		Assert.Equal(after, widgets.Requests.Count);
 	}
 
-	private static async Task<ActionResult> PlayAsync(AudioManager audioManager, PlaybackCountdownService countdown, string path, string widgetId, bool loop = false)
+	private static async Task<ActionResult> PlayAsync(AudioManager audioManager, PlaybackCountdownService countdown, string path, string widgetId, bool loop = false, bool showTimer = true)
 	{
 		var action = new PlaySoundAction(audioManager, countdown, new LoggerConfiguration().CreateLogger());
 		return await action.CreateExecutor().ExecuteAsync(new ActionExecutionContext
@@ -245,7 +265,8 @@ public sealed class PlaybackCountdownWidgetTests
 				["outputDevice"] = "default",
 				["monitor"] = false,
 				["volume"] = 0,
-				["loop"] = loop
+				["loop"] = loop,
+				["showTimer"] = showTimer
 			}
 		});
 	}
