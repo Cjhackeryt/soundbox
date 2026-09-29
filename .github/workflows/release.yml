@@ -15,7 +15,7 @@ jobs:
   publish:
     uses: Macro-Deck-App/GitHub-Actions/.github/workflows/publish-plugin.yml@v1
     with:
-      version: 1.0.7
+      version: 1.0.8
       source: .
       run-tests: true
       run-stub-host: true

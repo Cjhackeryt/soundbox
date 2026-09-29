@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
+## [1.0.8] - 2026-09-29
+
+### Added
+- New plugin settings page for the **Primary Output Device**: the main Windows output SoundBox plays through, chosen once instead of on every button.
+- Play Sound's output picker is now the optional **Secondary Output Device**. Leave it empty to play only the primary device, or pick a second device to play both together. The Monitor toggle is unchanged and still echoes through the Windows default device.
+
+### Fixed
+- The secondary output picker no longer comes back empty when device enumeration fails; it always offers at least the Windows default device so the action stays playable.
+
 ## [1.0.7] - 2026-09-27
 
 ### Added

@@ -4,6 +4,7 @@ using MacroDeck.Sdk;
 using MacroDeck.Sdk.Actions;
 using Serilog;
 using SoundBox.Audio;
+using SoundBox.Config;
 using SoundBox.Widgets;
 
 namespace SoundBox.Actions;
@@ -17,13 +18,21 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
     private const string Loop = "loop";
     private readonly AudioManager _audioManager;
     private readonly PlaybackCountdownService _countdown;
+    private readonly PlaybackRouting _routing;
     private readonly ILogger _logger;
 
-    public PlaySoundAction(AudioManager audioManager, PlaybackCountdownService countdown, ILogger logger)
+    public PlaySoundAction(AudioManager audioManager, PlaybackCountdownService countdown, PlaybackRouting routing, ILogger logger)
     {
         _audioManager = audioManager;
         _countdown = countdown;
+        _routing = routing;
         _logger = logger.ForContext<PlaySoundAction>();
+    }
+
+    /// <summary>Kept so existing tests and callers without a routing holder still compile; the primary output falls back to the Windows default.</summary>
+    public PlaySoundAction(AudioManager audioManager, PlaybackCountdownService countdown, ILogger logger)
+        : this(audioManager, countdown, new PlaybackRouting(), logger)
+    {
     }
 
 	public string Id => "play-sound";
@@ -34,13 +43,13 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 	public IReadOnlyList<ActionParameter> Parameters =>
 	[
 		ActionParameter.File(SoundFile, Strings.Actions.PlaySound.SoundFile.Label(), Strings.Actions.PlaySound.SoundFile.Description(), ["wav", "mp3"], true),
-		ActionParameter.DynamicChoice(OutputDevice, Strings.Actions.PlaySound.OutputDevice.Label(), Strings.Actions.PlaySound.OutputDevice.Description(), required: true),
+		ActionParameter.DynamicChoice(OutputDevice, Strings.Actions.PlaySound.OutputDevice.Label(), Strings.Actions.PlaySound.OutputDevice.Description(), required: false),
 		ActionParameter.Toggle(Monitor, Strings.Actions.PlaySound.Monitor.Label(), Strings.Actions.PlaySound.Monitor.Description(), true),
 		ActionParameter.Slider(Volume, 0, 100, Strings.Actions.PlaySound.Volume.Label(), Strings.Actions.PlaySound.Volume.Description(), 1, 100),
 		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description())
 	];
 
-	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _countdown, _logger);
+	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _countdown, _routing, _logger);
 
 	public Task<DynamicOptionsResult> GetDynamicOptionsAsync(DynamicOptionsContext context, CancellationToken cancellationToken)
 	{
@@ -65,12 +74,17 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 
 			return Task.FromResult(new DynamicOptionsResult { Options = [.. options], CacheSeconds = 5 });
 		}
-		catch (COMException exception)
+		catch (Exception exception)
 		{
+			// Never leave the picker empty: enumeration can fail for host-specific
+			// reasons beyond COM, and the default device still resolves at play time.
 			_logger.Warning(exception, "Unable to enumerate Windows audio output devices.");
 			return Task.FromResult(new DynamicOptionsResult
 			{
-				Options = [],
+				Options =
+				[
+					new ActionParameterOption { Value = "default", Label = Strings.Actions.PlaySound.OutputDevice.DefaultOption() }
+				],
 				Error = Strings.Actions.PlaySound.OutputDevice.Unavailable()
 			});
 		}
@@ -80,12 +94,14 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 	{
 		private readonly AudioManager _audioManager;
 		private readonly PlaybackCountdownService _countdown;
+		private readonly PlaybackRouting _routing;
 		private readonly ILogger _logger;
 
-		public Executor(AudioManager audioManager, PlaybackCountdownService countdown, ILogger logger)
+		public Executor(AudioManager audioManager, PlaybackCountdownService countdown, PlaybackRouting routing, ILogger logger)
 		{
 			_audioManager = audioManager;
 			_countdown = countdown;
+			_routing = routing;
 			_logger = logger;
 		}
 
@@ -112,7 +128,7 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 
 			try
 			{
-				if (!_audioManager.Play(filePath, outputDevice, monitor, volume, loop))
+				if (!_audioManager.Play(filePath, _routing.PrimaryOutputDeviceId, outputDevice, monitor, volume, loop))
 				{
 					return ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.NoDeviceFound());
 				}

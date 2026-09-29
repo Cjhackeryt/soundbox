@@ -25,6 +25,8 @@ With built-in WASAPI low-latency rendering and dual-output audio monitoring, you
 
 - 🎵 **Broad Audio Support**: Plays standard uncompressed `.wav` and compressed `.mp3` audio files.
 - 🎛️ **Targeted Device Routing**: Send audio to any active Windows audio playback device or virtual audio cable.
+- ⭐ **Primary Output in Settings**: Choose the main output once on the plugin configuration page.
+- 🎧 **Optional Secondary Output**: Each button can add a second output alongside the primary, or leave it empty for primary-only playback.
 - 🎧 **Dual-Output Monitoring**: Concurrently echo the sound to your default Windows playback device (e.g., headset/speakers) so you always hear what you play.
 - 🔊 **Fine-Grained Volume**: Dedicated volume slider (0% to 100%) for custom sound balancing.
 - 🔁 **Continuous Looping**: Repeat sounds indefinitely until manually stopped.
@@ -45,15 +47,17 @@ With built-in WASAPI low-latency rendering and dual-output audio monitoring, you
 ## Available Actions
 
 ### 1. Play Sound (`play-sound`)
-Plays a sound file through the selected Windows audio output device.
+Plays a sound file through the primary output device from the plugin settings, plus an optional secondary output.
 
 | Parameter | Type | Required | Description | Default |
 | :--- | :--- | :--- | :--- | :--- |
 | **Sound File** | File Picker (`.wav`, `.mp3`) | Yes | Path to the local sound file. | — |
-| **Output Device** | Dynamic Dropdown | Yes | Selects the Windows output device or default device. | Windows Default Playback Device |
+| **Secondary Output Device** | Dynamic Dropdown | No | Optional second output played together with the primary device. Leave empty for primary-only playback. | — (none) |
 | **Monitor Sound** | Toggle | No | Also plays sound through the default Windows playback device. | `true` |
 | **Volume** | Slider (0–100%) | No | Adjusts playback volume. | `100` |
 | **Loop** | Toggle | No | Automatically restarts playback when the file reaches the end. | `false` |
+
+Set the **Primary Output Device** once on the plugin configuration page. Each button then optionally adds its own secondary output.
 
 ### 2. Stop Sound (`stop-sound`)
 Immediately stops any sound currently being played by SoundBox across all output devices.
@@ -106,11 +110,12 @@ It still exists and keeps working, purely so configurations that already referen
 ### Routing Sound to Discord / OBS + Monitoring Locally
 
 1. Install a virtual audio cable such as [VB-CABLE](https://vb-audio.com/Cable/) or Voicemeeter.
-2. Open **Macro Deck 3** on your PC.
+2. Open **Macro Deck 3** on your PC and open the **SoundBox plugin settings**:
+   - **Primary Output Device**: Select **CABLE Input (VB-Audio Virtual Cable)**.
 3. Edit any button on your deck and add the **Play Sound** action:
    - **Sound File**: Browse and select your `.wav` or `.mp3` file.
-   - **Output Device**: Select **CABLE Input (VB-Audio Virtual Cable)**.
-   - **Monitor Sound**: Set to **Enabled (ON)**.
+   - **Secondary Output Device**: Leave empty (primary-only), or pick your headphones for a per-button second route.
+   - **Monitor Sound**: Set to **Enabled (ON)** to also hear it through the default device.
    - **Volume**: Adjust as desired.
 4. In Discord or OBS:
    - Set the Input Device (Microphone) to **CABLE Output (VB-Audio Virtual Cable)**.
@@ -152,7 +157,7 @@ It still exists and keeps working, purely so configurations that already referen
 
 5. (Optional) Run the Macro Deck conformance test suite:
    ```bash
-   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.7.macroDeckPlugin
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.8.macroDeckPlugin
    ```
 
 ---
@@ -161,5 +166,5 @@ It still exists and keeps working, purely so configurations that already referen
 
 - **Plugin ID**: `com.cjhackeryt.soundbox`
 - **Publisher**: `CJHackerYT`
-- **Version**: `1.0.7`
+- **Version**: `1.0.8`
 - **License**: [MIT](LICENSE)

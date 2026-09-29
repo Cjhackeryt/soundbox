@@ -15,10 +15,13 @@ SoundBox.csproj              the plugin project targeting net10.0 (win-x64)
 Program.cs                   builder chain: CreatePlugin -> UseMacroDeckLogging -> UseLocalization -> RegisterIntegration -> Build -> RunAsync
 manifest.json                identity, icon, win-x64 framework-dependent entrypoint
 macrodeck-build.json         win-x64 framework-dependent publish target
-PluginIntegration.cs         the integration: lifecycle, action registration, and the variable provider
+PluginIntegration.cs         the integration: lifecycle, action registration, primary-output config flow, and the variable provider
 Actions/
-  PlaySoundAction.cs         plays audio file to selected output device with monitoring and looping
+  PlaySoundAction.cs         plays audio file to the primary output plus an optional secondary output, with monitoring and looping
   StopSoundAction.cs         stops the currently playing sound
+Config/
+  SoundBoxConfigFlow.cs      single-step config flow for the primary output device
+  PlaybackRouting.cs         the shared primary-output holder the integration updates and actions read
 Audio/
   AudioManager.cs            core audio playback and WASAPI routing engine (NAudio)
 Playback/

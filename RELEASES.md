@@ -15,6 +15,22 @@ This document outlines release packages, distribution channels, and installation
 
 ## Release History
 
+### Version 1.0.8 (2026-09-29)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- New plugin settings page for the **Primary Output Device**, chosen once instead of on every button.
+- Play Sound's output picker is now the optional **Secondary Output Device**; the Monitor toggle is unchanged.
+- The secondary picker always offers at least the Windows default device, so the action stays playable even when device enumeration fails.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.8.macroDeckPlugin`
+
+
 ### Version 1.0.7 (2026-09-27)
 
 - **Package ID**: `com.cjhackeryt.soundbox`
@@ -141,7 +157,7 @@ This document outlines release packages, distribution channels, and installation
 - Deadlock-free asynchronous audio thread lifecycle management.
 
 #### Artifacts
-- `com.cjhackeryt.soundbox-0.1.0-win-x64.macroDeckPlugin`
+- `com.cjhackeryt.soundbox-1.0.0-win-x64.macroDeckPlugin`
 - Self-contained binary bundle for Windows x64.
 
 ---

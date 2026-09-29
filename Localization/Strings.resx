@@ -71,10 +71,10 @@
     <value>WAV and MP3 files are supported.</value>
   </data>
   <data name="Actions.PlaySound.OutputDevice.Label" xml:space="preserve">
-    <value>Output Device</value>
+    <value>Secondary Output Device</value>
   </data>
   <data name="Actions.PlaySound.OutputDevice.Description" xml:space="preserve">
-    <value>The Windows output device to receive the sound.</value>
+    <value>Optional second output played together with the primary device from the plugin settings. Leave empty to play only the primary device.</value>
   </data>
   <data name="Actions.PlaySound.OutputDevice.DefaultOption" xml:space="preserve">
     <value>Windows Default Playback Device</value>
@@ -121,6 +121,24 @@
   </data>
   <data name="Actions.StopSound.Errors.StopFailed" xml:space="preserve">
     <value>The sound could not be stopped.</value>
+  </data>
+  <data name="Config.PrimaryOutput.Title" xml:space="preserve">
+    <value>Primary Output</value>
+  </data>
+  <data name="Config.PrimaryOutput.Description" xml:space="preserve">
+    <value>The main Windows output device SoundBox plays through. Each button can add an optional secondary output.</value>
+  </data>
+  <data name="Config.PrimaryOutput.Device.Label" xml:space="preserve">
+    <value>Primary Output Device</value>
+  </data>
+  <data name="Config.PrimaryOutput.Device.Description" xml:space="preserve">
+    <value>The main Windows output device to receive the sound.</value>
+  </data>
+  <data name="Config.PrimaryOutput.Device.DefaultOption" xml:space="preserve">
+    <value>Windows Default Playback Device</value>
+  </data>
+  <data name="Config.PrimaryOutput.Errors.UnknownStep" xml:space="preserve">
+    <value>Unknown configuration step.</value>
   </data>
   <data name="Variables.PlaybackRemaining.DisplayName" xml:space="preserve">
     <value>Playback Remaining</value>

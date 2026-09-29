@@ -44,6 +44,67 @@ public sealed class PluginIntegrationTests
 		Assert.Contains("monitor", parameterNames);
 		Assert.Contains("volume", parameterNames);
 		Assert.Contains("loop", parameterNames);
+
+		var secondary = action.Parameters.Single(p => p.Name == "outputDevice");
+		Assert.False(secondary.Required);
+	}
+
+	[Fact]
+	public async Task SoundBoxConfigFlowCompletesWithPrimaryDevice()
+	{
+		using var audioManager = new AudioManager(_logger);
+		var flow = new SoundBox.Config.SoundBoxConfigFlow(audioManager, _logger);
+
+		var started = await flow.StartAsync(new TestConfigFlowContext(), CancellationToken.None);
+		Assert.Equal(MacroDeck.Sdk.ConfigFlow.ConfigFlowResultKind.Step, started.Kind);
+		Assert.NotNull(started.NextStep);
+		Assert.Contains(started.NextStep.Fields, f => f.Name == SoundBox.Config.SoundBoxConfigFlow.PrimaryOutputDeviceField);
+
+		var submitted = await flow.SubmitAsync(
+			started.NextStep.StepId,
+			new Dictionary<string, object?> { [SoundBox.Config.SoundBoxConfigFlow.PrimaryOutputDeviceField] = "default" },
+			new TestConfigFlowContext(),
+			CancellationToken.None);
+		Assert.Equal(MacroDeck.Sdk.ConfigFlow.ConfigFlowResultKind.Complete, submitted.Kind);
+	}
+
+	[Fact]
+	public async Task SoundBoxConfigFlowRejectsEmptyPrimaryDevice()
+	{
+		using var audioManager = new AudioManager(_logger);
+		var flow = new SoundBox.Config.SoundBoxConfigFlow(audioManager, _logger);
+
+		var started = await flow.StartAsync(new TestConfigFlowContext(), CancellationToken.None);
+		var submitted = await flow.SubmitAsync(
+			started.NextStep!.StepId,
+			new Dictionary<string, object?> { [SoundBox.Config.SoundBoxConfigFlow.PrimaryOutputDeviceField] = "" },
+			new TestConfigFlowContext(),
+			CancellationToken.None);
+		Assert.Equal(MacroDeck.Sdk.ConfigFlow.ConfigFlowResultKind.Error, submitted.Kind);
+	}
+
+	private sealed class TestConfigFlowContext : MacroDeck.Sdk.ConfigFlow.IConfigFlowContext
+	{
+		public MacroDeck.Sdk.ConfigFlow.IOAuthSession OAuth => throw new NotSupportedException();
+	}
+
+	[Fact]
+	public async Task SecondaryOutputOptionsAlwaysIncludeDefault()
+	{
+		using var audioManager = new AudioManager(_logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var action = new PlaySoundAction(audioManager, countdown, _logger);
+
+		var result = await action.GetDynamicOptionsAsync(
+			new DynamicOptionsContext
+			{
+				ParameterName = "outputDevice",
+				CurrentParameters = new Dictionary<string, object?>()
+			},
+			CancellationToken.None);
+
+		Assert.NotEmpty(result.Options);
+		Assert.Contains(result.Options, o => o.Value == "default");
 	}
 
 	[Fact]

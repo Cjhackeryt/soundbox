@@ -34,7 +34,10 @@ public sealed class AudioManager : IDisposable
             .ToArray();
     }
 
-    public bool Play(string filePath, string? outputDeviceId, bool monitor, int volumePercent, bool loop)
+    public bool Play(string filePath, string? outputDeviceId, bool monitor, int volumePercent, bool loop) =>
+        Play(filePath, outputDeviceId, secondaryOutputDeviceId: null, monitor, volumePercent, loop);
+
+    public bool Play(string filePath, string? primaryOutputDeviceId, string? secondaryOutputDeviceId, bool monitor, int volumePercent, bool loop)
     {
         if (!File.Exists(filePath))
         {
@@ -53,10 +56,21 @@ public sealed class AudioManager : IDisposable
         try
         {
             var outputs = new List<MMDevice>();
-            var selectedOutput = FindDevice(outputDeviceId);
-            if (selectedOutput is not null)
+            var primaryOutput = FindDevice(primaryOutputDeviceId);
+            if (primaryOutput is not null)
             {
-                outputs.Add(selectedOutput);
+                outputs.Add(primaryOutput);
+            }
+
+            var secondaryOutput = FindDeviceOrNullWhenOptional(secondaryOutputDeviceId);
+            if (secondaryOutput is not null
+                && outputs.All(device => !string.Equals(device.ID, secondaryOutput.ID, StringComparison.OrdinalIgnoreCase)))
+            {
+                outputs.Add(secondaryOutput);
+            }
+            else
+            {
+                secondaryOutput?.Dispose();
             }
 
             if (monitor)
@@ -178,6 +192,16 @@ public sealed class AudioManager : IDisposable
                 _playbackVersion++;
             }
         }
+    }
+
+    private MMDevice? FindDeviceOrNullWhenOptional(string? deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId) || string.Equals(deviceId, "none", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        return FindDevice(deviceId);
     }
 
     private MMDevice? FindDevice(string? deviceId)
