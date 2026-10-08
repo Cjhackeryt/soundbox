@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "com.cjhackeryt.soundbox",
   "name": "SoundBox",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A Windows soundboard plugin for Macro Deck 3.",
   "icon": "Assets/icon.svg",
   "entrypoints": {

@@ -2,7 +2,7 @@
 
 A high-performance Windows soundboard plugin for **Macro Deck 3**.
 
-[![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.14+-blue.svg)](https://macro-deck.app)
+[![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.15+-blue.svg)](https://macro-deck.app)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Publisher](https://img.shields.io/badge/Publisher-CJHackerYT-orange.svg)]()
@@ -163,7 +163,7 @@ It still exists and keeps working, purely so configurations that already referen
 
 5. (Optional) Run the Macro Deck conformance test suite:
    ```bash
-   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.8.macroDeckPlugin
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.9.macroDeckPlugin
    ```
 
 ---
@@ -172,5 +172,5 @@ It still exists and keeps working, purely so configurations that already referen
 
 - **Plugin ID**: `com.cjhackeryt.soundbox`
 - **Publisher**: `CJHackerYT`
-- **Version**: `1.0.8`
+- **Version**: `1.0.9`
 - **License**: [MIT](LICENSE)

@@ -14,6 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
+## [1.0.9] - 2026-10-08
+
+### Fixed
+- Prevented Play Sound and device pickers from faulting when NAudio encounters a null Core Audio endpoint.
+- Refreshed the Core Audio enumerator for each device query and playback start so reconfiguration uses current device state.
+
+### Changed
+- Upgraded the Macro Deck SDK and publishing CLI to `3.0.0-beta.15`.
+
 ## [1.0.8] - 2026-09-29
 
 ### Added
