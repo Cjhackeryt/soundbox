@@ -15,6 +15,22 @@ This document outlines release packages, distribution channels, and installation
 
 ## Release History
 
+### Version 1.0.9 (2026-10-08)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Core Audio device enumeration is refreshed for each query and playback, avoiding stale device references after reconfiguration.
+- NAudio null endpoint failures are handled without faulting Play Sound or the device pickers.
+- Built against Macro Deck SDK and Plugin CLI `3.0.0-beta.15`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.9.macroDeckPlugin`
+
+
 ### Version 1.0.8 (2026-09-29)
 
 - **Package ID**: `com.cjhackeryt.soundbox`

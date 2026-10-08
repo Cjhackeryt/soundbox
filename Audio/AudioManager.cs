@@ -9,29 +9,40 @@ public sealed class AudioManager : IDisposable
 {
     private readonly object _sync = new();
     private readonly ILogger _logger;
-    private readonly MMDeviceEnumerator? _deviceEnumerator;
     private PlaybackSession? _current;
     private long _playbackVersion;
 
     public AudioManager(ILogger logger)
     {
         _logger = logger.ForContext<AudioManager>();
-        if (OperatingSystem.IsWindows())
-        {
-            _deviceEnumerator = new MMDeviceEnumerator();
-        }
     }
 
     public IReadOnlyList<AudioDevice> GetOutputDevices()
     {
-        if (_deviceEnumerator is null)
+        using var deviceEnumerator = CreateDeviceEnumerator();
+        if (deviceEnumerator is null)
         {
             return [];
         }
 
-        return _deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
-            .Select(device => new AudioDevice(device.ID, device.FriendlyName))
-            .ToArray();
+        try
+        {
+            var devices = new List<AudioDevice>();
+            foreach (var device in deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+            {
+                using (device)
+                {
+                    devices.Add(new AudioDevice(device.ID, device.FriendlyName));
+                }
+            }
+
+            return devices;
+        }
+        catch (Exception exception) when (IsDeviceEnumerationFailure(exception))
+        {
+            _logger.Warning(exception, "Unable to enumerate Windows audio output devices.");
+            return [];
+        }
     }
 
     public bool Play(string filePath, string? outputDeviceId, bool monitor, int volumePercent, bool loop) =>
@@ -45,9 +56,15 @@ public sealed class AudioManager : IDisposable
             return false;
         }
 
-        if (_deviceEnumerator is null)
+        if (!OperatingSystem.IsWindows())
         {
             _logger.Warning("Audio playback is only supported on Windows.");
+            return false;
+        }
+
+        using var deviceEnumerator = CreateDeviceEnumerator();
+        if (deviceEnumerator is null)
+        {
             return false;
         }
 
@@ -56,13 +73,13 @@ public sealed class AudioManager : IDisposable
         try
         {
             var outputs = new List<MMDevice>();
-            var primaryOutput = FindDevice(primaryOutputDeviceId);
+            var primaryOutput = FindDevice(deviceEnumerator, primaryOutputDeviceId);
             if (primaryOutput is not null)
             {
                 outputs.Add(primaryOutput);
             }
 
-            var secondaryOutput = FindDeviceOrNullWhenOptional(secondaryOutputDeviceId);
+            var secondaryOutput = FindDeviceOrNullWhenOptional(deviceEnumerator, secondaryOutputDeviceId);
             if (secondaryOutput is not null
                 && outputs.All(device => !string.Equals(device.ID, secondaryOutput.ID, StringComparison.OrdinalIgnoreCase)))
             {
@@ -77,13 +94,13 @@ public sealed class AudioManager : IDisposable
             {
                 try
                 {
-                    var monitorOutput = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    var monitorOutput = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     if (outputs.All(device => !string.Equals(device.ID, monitorOutput.ID, StringComparison.OrdinalIgnoreCase)))
                     {
                         outputs.Add(monitorOutput);
                     }
                 }
-                catch (Exception ex) when (ex is COMException or InvalidOperationException)
+                catch (Exception ex) when (IsDeviceEnumerationFailure(ex))
                 {
                     _logger.Warning(ex, "Unable to acquire default audio endpoint for monitoring.");
                 }
@@ -93,10 +110,10 @@ public sealed class AudioManager : IDisposable
             {
                 try
                 {
-                    var fallback = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    var fallback = deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
                     outputs.Add(fallback);
                 }
-                catch (Exception ex) when (ex is COMException or InvalidOperationException)
+                catch (Exception ex) when (IsDeviceEnumerationFailure(ex))
                 {
                     _logger.Warning(ex, "Unable to acquire fallback audio endpoint.");
                 }
@@ -194,31 +211,43 @@ public sealed class AudioManager : IDisposable
         }
     }
 
-    private MMDevice? FindDeviceOrNullWhenOptional(string? deviceId)
+    private MMDeviceEnumerator? CreateDeviceEnumerator()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return null;
+        }
+
+        try
+        {
+            return new MMDeviceEnumerator();
+        }
+        catch (Exception exception) when (IsDeviceEnumerationFailure(exception))
+        {
+            _logger.Warning(exception, "Unable to initialize Windows audio device enumeration.");
+            return null;
+        }
+    }
+
+    private MMDevice? FindDeviceOrNullWhenOptional(MMDeviceEnumerator deviceEnumerator, string? deviceId)
     {
         if (string.IsNullOrWhiteSpace(deviceId) || string.Equals(deviceId, "none", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
 
-        return FindDevice(deviceId);
+        return FindDevice(deviceEnumerator, deviceId);
     }
 
-    private MMDevice? FindDevice(string? deviceId)
+    private MMDevice? FindDevice(MMDeviceEnumerator deviceEnumerator, string? deviceId)
     {
-        var deviceEnumerator = _deviceEnumerator;
-        if (deviceEnumerator is null)
-        {
-            return null;
-        }
-
         if (string.IsNullOrWhiteSpace(deviceId) || string.Equals(deviceId, "default", StringComparison.OrdinalIgnoreCase))
         {
             try
             {
                 return deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             }
-            catch (Exception ex) when (ex is COMException or InvalidOperationException)
+            catch (Exception ex) when (IsDeviceEnumerationFailure(ex))
             {
                 _logger.Warning(ex, "Default audio endpoint could not be retrieved.");
                 return null;
@@ -227,20 +256,42 @@ public sealed class AudioManager : IDisposable
 
         try
         {
-            return deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active)
-                .FirstOrDefault(device => string.Equals(device.ID, deviceId, StringComparison.OrdinalIgnoreCase));
+            foreach (var device in deviceEnumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+            {
+                var matches = false;
+                try
+                {
+                    matches = string.Equals(device.ID, deviceId, StringComparison.OrdinalIgnoreCase);
+                }
+                finally
+                {
+                    if (!matches)
+                    {
+                        device.Dispose();
+                    }
+                }
+
+                if (matches)
+                {
+                    return device;
+                }
+            }
+
+            return null;
         }
-        catch (Exception ex) when (ex is COMException or InvalidOperationException)
+        catch (Exception ex) when (IsDeviceEnumerationFailure(ex))
         {
             _logger.Warning(ex, "Error searching for audio endpoint {DeviceId}.", deviceId);
             return null;
         }
     }
 
+    private static bool IsDeviceEnumerationFailure(Exception exception) =>
+        exception is COMException or InvalidOperationException or NullReferenceException;
+
     public void Dispose()
     {
         Stop();
-        _deviceEnumerator?.Dispose();
     }
 
     public sealed record AudioDevice(string Id, string Name);
