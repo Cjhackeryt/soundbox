@@ -2,6 +2,13 @@
 
 A high-performance Windows soundboard plugin for **Macro Deck 3**.
 
+<a href="https://macro-deck.app/store/com.cjhackeryt.hwinfodeck">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://assets.macro-deck.app/branding/Open%20in%20the%20Macro%20Deck%20Store%20Badge%20Dark.png">
+    <img alt="Open in the Macro Deck Store" src="https://assets.macro-deck.app/branding/Open%20in%20the%20Macro%20Deck%20Store%20Badge%20Light.png" height="56">
+  </picture>
+</a>
+
 [![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.15+-blue.svg)](https://macro-deck.app)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
