@@ -2,14 +2,14 @@
 
 A high-performance Windows soundboard plugin for **Macro Deck 3**.
 
-<a href="https://macro-deck.app/store/com.cjhackeryt.hwinfodeck">
+<a href="https://macro-deck.app/store/com.cjhackeryt.soundbox">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://assets.macro-deck.app/branding/Open%20in%20the%20Macro%20Deck%20Store%20Badge%20Dark.png">
     <img alt="Open in the Macro Deck Store" src="https://assets.macro-deck.app/branding/Open%20in%20the%20Macro%20Deck%20Store%20Badge%20Light.png" height="56">
   </picture>
 </a>
 
-[![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.15+-blue.svg)](https://macro-deck.app)
+[![Macro Deck 3](https://img.shields.io/badge/Macro%20Deck-3.0.0--beta.18+-blue.svg)](https://macro-deck.app)
 [![Platform](https://img.shields.io/badge/Platform-Windows%20x64-brightgreen.svg)]()
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Publisher](https://img.shields.io/badge/Publisher-CJHackerYT-orange.svg)]()
@@ -46,7 +46,7 @@ With built-in WASAPI low-latency rendering and dual-output audio monitoring, you
 ## System Requirements
 
 - **Operating System**: Windows 10 / Windows 11 (x64)
-- **Macro Deck**: Macro Deck 3 (`>= 3.0.0-beta.12`)
+- **Macro Deck**: Macro Deck 3 (`>= 3.0.0-beta.18`)
 - **Audio Output**: Any active Windows audio playback endpoint (Realtek, USB DAC, VB-Cable, Voicemeeter, etc.)
 
 ---
@@ -76,7 +76,7 @@ Immediately stops any sound currently being played by SoundBox across all output
 
 Each button can show the remaining time while its sound plays, or leave its text alone:
 
-- **Show Timer ON** (default): pressing the button replaces its label with the countdown, then restores the configured text and icon when playback ends.
+- **Show Timer ON** (default): pressing the button temporarily replaces its label with the countdown. SoundBox saves the configured label and writes it back to the same button state when playback ends.
 - **Show Timer OFF**: the button text is never touched.
 
 There is nothing else to configure. Press a button and it counts itself down:
@@ -102,7 +102,7 @@ Each button shows the length of the sound configured on **that** button, in `MM:
 **Behaviour details**
 
 - The countdown updates about every 300 ms, and only when the displayed second actually changes.
-- When a sound finishes on its own the widget returns to its configured text and icon. `00:00` is never left on screen.
+- When a sound finishes on its own the widget returns to its configured text and icon. SoundBox writes back the saved label rather than clearing the label property, so configured text is not lost. If no label was configured, it stays blank rather than changing to Macro Deck's default "button" label. `00:00` is never left on screen.
 - With **Loop** enabled the countdown resets each time the sound loops, and the widget only returns to normal when playback is actually stopped.
 - Pressing **Stop Sound** restores every widget that was counting straight away.
 - Pressing the same button again while it is playing restarts that button's countdown from the beginning, matching the existing restart behaviour.
@@ -170,7 +170,7 @@ It still exists and keeps working, purely so configurations that already referen
 
 5. (Optional) Run the Macro Deck conformance test suite:
    ```bash
-   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.9.macroDeckPlugin
+   macrodeck-plugin test --artifact ./artifacts/com.cjhackeryt.soundbox-1.0.10.macroDeckPlugin
    ```
 
 ---
@@ -179,5 +179,6 @@ It still exists and keeps working, purely so configurations that already referen
 
 - **Plugin ID**: `com.cjhackeryt.soundbox`
 - **Publisher**: `CJHackerYT`
-- **Version**: `1.0.9`
+- **Version**: `1.0.10`
 - **License**: [MIT](LICENSE)
+- **Third-party notices**: [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES)

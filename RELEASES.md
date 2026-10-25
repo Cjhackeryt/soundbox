@@ -8,12 +8,28 @@ This document outlines release packages, distribution channels, and installation
 
 | Channel | Target Audience | Compatibility | Recommended Source |
 | :--- | :--- | :--- | :--- |
-| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>= 3.0.0-beta.12` | Macro Deck Extension Store |
+| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>=3.0.0-beta.18` | Macro Deck Extension Store |
 | **GitHub Releases** | Developers, early testers | Windows 10/11 x64 | `.macroDeckPlugin` release assets |
 
 ---
 
 ## Release History
+
+### Version 1.0.10 (2026-10-25)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.18`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Countdown updates and cleanup target the same widget state, restoring configured labels even if the state changes during playback.
+- Unlabeled buttons stay blank after the countdown, including when the host does not expose built-in widget data.
+- Built against Macro Deck SDK and Plugin CLI `3.0.0-beta.19`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.10.macroDeckPlugin`
+
 
 ### Version 1.0.9 (2026-10-08)
 
