@@ -1,4 +1,5 @@
 using MacroDeck.Sdk.Actions;
+using MacroDeck.Sdk.Widgets;
 using Serilog;
 using SoundBox.Actions;
 using SoundBox.Audio;
@@ -10,7 +11,7 @@ namespace SoundBox.Tests;
 
 /// <summary>
 /// Exercises the per-widget countdown through the real Play Sound and Stop Sound actions,
-/// against a real Windows output device, recording the appearance each widget receives.
+/// against a recording widget API. Audio playback cases use a real Windows output device.
 /// Methods in one class run sequentially.
 /// </summary>
 public sealed class PlaybackCountdownWidgetTests
@@ -31,6 +32,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("widget-airhorn", "Airhorn"));
 		countdown.Attach(widgets);
 
 		var result = await PlayAsync(audioManager, countdown, path, "widget-airhorn");
@@ -53,9 +55,10 @@ public sealed class PlaybackCountdownWidgetTests
 		Assert.Contains("00:02", labels);
 		Assert.Contains("00:01", labels);
 
-		// The widget is restored to its configured text rather than left on 00:00.
+		// The widget is restored to its configured text rather than left on the countdown.
 		Assert.True(widgets.WasRestored("widget-airhorn"), "The widget was never restored.");
 		Assert.DoesNotContain("00:00", labels);
+		Assert.Equal("Airhorn", widgets.EffectiveLabelFor("widget-airhorn", "active"));
 	}
 
 	[RequiresAudioDeviceFact]
@@ -66,6 +69,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("button-1", "Button 1"), ("button-2", "Button 2"), ("button-3", "Button 3"));
 		countdown.Attach(widgets);
 
 		await PlayAsync(audioManager, countdown, path, "button-1");
@@ -91,6 +95,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("widget-airhorn", "Airhorn"), ("widget-applause", "Applause"));
 		countdown.Attach(widgets);
 
 		// Each widget's first label must reflect the sound configured on that widget.
@@ -117,6 +122,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("widget-airhorn", "Airhorn"));
 		countdown.Attach(widgets);
 
 		await PlayAsync(audioManager, countdown, path, "widget-airhorn");
@@ -146,6 +152,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("widget-airhorn", "Airhorn"));
 		countdown.Attach(widgets);
 
 		await PlayAsync(audioManager, countdown, path, "widget-airhorn");
@@ -159,6 +166,7 @@ public sealed class PlaybackCountdownWidgetTests
 		_output.WriteLine($"airhorn: {string.Join(" ", widgets.LabelsFor("widget-airhorn"))}");
 
 		await countdown.ResetAllAsync(CancellationToken.None);
+		Assert.Equal("Airhorn", widgets.EffectiveLabelFor("widget-airhorn", "active"));
 	}
 
 	[RequiresAudioDeviceFact]
@@ -169,6 +177,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("widget-loop", "Loop"));
 		countdown.Attach(widgets);
 
 		await PlayAsync(audioManager, countdown, path, "widget-loop", loop: true);
@@ -199,6 +208,7 @@ public sealed class PlaybackCountdownWidgetTests
 		using var audioManager = new AudioManager(_logger);
 		using var countdown = new PlaybackCountdownService(audioManager, _logger);
 		var widgets = new RecordingWidgetApi();
+		AddWidgets(widgets, ("widget-1", "First"), ("widget-2", "Second"));
 		countdown.Attach(widgets);
 
 		await PlayAsync(audioManager, countdown, first, "widget-1");
@@ -233,6 +243,98 @@ public sealed class PlaybackCountdownWidgetTests
 		Assert.DoesNotContain(widgets.Requests, r => r.WidgetId == "widget-quiet");
 
 		await countdown.ResetAllAsync(CancellationToken.None);
+	}
+
+	[Fact]
+	public async Task RestoresConfiguredLabelToTheStateThatReceivedTheCountdown()
+	{
+		using var audioManager = new AudioManager(_logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var widgets = new RecordingWidgetApi();
+		widgets.AddWidget(
+			"widget-stateful",
+			new Dictionary<string, string?>
+			{
+				["active"] = "Configured active",
+				["inactive"] = "Configured inactive"
+			},
+			"active");
+		countdown.Attach(widgets);
+
+		await countdown.StartAsync("widget-stateful", CancellationToken.None);
+		await widgets.ApplyAsync(new WidgetAppearanceRequest
+		{
+			WidgetId = "widget-stateful",
+			Patch = new WidgetAppearancePatch { Label = "00:05" },
+			StateIds = [WidgetStates.Current]
+		});
+		Assert.Equal("00:05", widgets.EffectiveLabelFor("widget-stateful", "active"));
+
+		widgets.SetCurrentState("widget-stateful", "inactive");
+		await countdown.ResetAllAsync(CancellationToken.None);
+
+		Assert.Equal("Configured active", widgets.EffectiveLabelFor("widget-stateful", "active"));
+		Assert.Equal("Configured inactive", widgets.EffectiveLabelFor("widget-stateful", "inactive"));
+		var restoreRequest = widgets.Requests.Last();
+		Assert.Equal("active", Assert.Single(restoreRequest.StateIds));
+		Assert.Equal("Configured active", restoreRequest.Label);
+		Assert.DoesNotContain(WidgetAppearanceProperty.Label, restoreRequest.Clear);
+	}
+
+	[Fact]
+	public async Task KeepsAnUnlabeledWidgetBlankInsteadOfRestoringTheDefaultButtonLabel()
+	{
+		using var audioManager = new AudioManager(_logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var widgets = new RecordingWidgetApi();
+		widgets.WidgetDataAvailable = false;
+		widgets.AddWidget(
+			"widget-unlabeled",
+			new Dictionary<string, string?> { ["active"] = null },
+			"active");
+		countdown.Attach(widgets);
+
+		Assert.Equal("Button", Assert.Single(widgets.GetWidgets()).Label);
+		await countdown.StartAsync("widget-unlabeled", CancellationToken.None);
+		await widgets.ApplyAsync(new WidgetAppearanceRequest
+		{
+			WidgetId = "widget-unlabeled",
+			Patch = new WidgetAppearancePatch { Label = "00:05" },
+			StateIds = [WidgetStates.Current]
+		});
+		Assert.Equal("00:05", widgets.EffectiveLabelFor("widget-unlabeled", "active"));
+
+		await countdown.ResetAllAsync(CancellationToken.None);
+
+		Assert.Equal(string.Empty, widgets.EffectiveLabelFor("widget-unlabeled", "active"));
+		var restoreRequest = widgets.Requests.Last();
+		Assert.Equal(string.Empty, restoreRequest.Label);
+		Assert.DoesNotContain(WidgetAppearanceProperty.Label, restoreRequest.Clear);
+	}
+
+	[Fact]
+	public async Task RestoresConfiguredLabelWhenWidgetDataIsUnavailable()
+	{
+		using var audioManager = new AudioManager(_logger);
+		using var countdown = new PlaybackCountdownService(audioManager, _logger);
+		var widgets = new RecordingWidgetApi { WidgetDataAvailable = false };
+		widgets.AddWidget(
+			"widget-labeled",
+			new Dictionary<string, string?> { ["active"] = "Airhorn" },
+			"active");
+		countdown.Attach(widgets);
+
+		await countdown.StartAsync("widget-labeled", CancellationToken.None);
+		await widgets.ApplyAsync(new WidgetAppearanceRequest
+		{
+			WidgetId = "widget-labeled",
+			Patch = new WidgetAppearancePatch { Label = "00:05" },
+			StateIds = [WidgetStates.Current]
+		});
+		await countdown.ResetAllAsync(CancellationToken.None);
+
+		Assert.Equal("Airhorn", widgets.EffectiveLabelFor("widget-labeled", "active"));
+		Assert.Equal("Airhorn", widgets.Requests.Last().Label);
 	}
 
 	[Fact]
@@ -299,5 +401,13 @@ public sealed class PlaybackCountdownWidgetTests
 		var path = Path.Combine(Path.GetTempPath(), $"soundbox-tests-{Guid.NewGuid():N}-{name}");
 		TestWave.Create(path, duration);
 		return path;
+	}
+
+	private static void AddWidgets(RecordingWidgetApi widgets, params (string Id, string Label)[] entries)
+	{
+		foreach (var (widgetId, label) in entries)
+		{
+			widgets.AddWidget(widgetId, new Dictionary<string, string?> { ["active"] = label }, "active");
+		}
 	}
 }

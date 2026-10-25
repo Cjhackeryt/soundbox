@@ -27,7 +27,7 @@ Audio/
 Playback/
   RemainingTimeFormatter.cs  the shared MM:SS / HH:MM:SS formatter for a remaining duration
 Widgets/
-  PlaybackCountdownService.cs  per-widget countdown, one independent session per pressed widget
+  PlaybackCountdownService.cs  per-widget countdown, restores saved labels and ignores the host's generic Button descriptor when widget data is unavailable
 Variables/
   PlaybackRemainingVariableProvider.cs  the deprecated soundbox_playback_remaining text variable
 Localization/
@@ -95,6 +95,8 @@ A change is not done until all six hold:
    `repository` must be the GitHub repository the plugin is built and released from, written
    `https://github.com/<owner>/<name>`; an upload from any other repository is refused. The template's
    `Example Publisher` and `https://github.com/example/my-plugin` are placeholders and never pass.
+   The manifest's `ai` declaration must accurately cover AI interaction, generated content and bundled
+   AI-generated assets. Check the current Creator Guidelines and schema before setting it.
 6. **The plugin passes the conformance suite on every platform it declares.** The Store refuses a build
    that does not come with a conformance report for each platform in `entrypoints`, or whose report shows
    a failed Required check, never reached the plugin (`MDC0201`, the handshake, did not pass), or is for
@@ -195,6 +197,11 @@ opposite: real network calls that can throw `HostInvocationException` on rate li
 connection. Handle them like any networked call. `Deck.GetFolders()`, `Scripts.GetScripts()` and
 `Widgets.GetWidgets()` read a host-pushed cache instead and return empty in the short window before the
 first push.
+
+`Widgets.GetWidgetDataAsync` is owner-scoped and can return `null` for built-in Macro Deck widgets.
+`GetWidgets().Label` is a display descriptor, not always the configured text: an unlabeled action
+button falls back to the type name `Button`. Keep that fallback distinct from the user's label when
+restoring appearances.
 
 ### Catalogues go stale - say so
 
@@ -347,6 +354,10 @@ pass `-p:MacroDeckSdkVersion=<version>` - see "Building against a local SDK buil
 macrodeck-plugin build --output ./artifacts
 macrodeck-plugin inspect --artifact ./artifacts/com.cjhackeryt.soundbox-0.1.3.macroDeckPlugin
 ```
+
+After changing dependencies, regenerate the NuGet section with the plugin creator skill's
+dependency inventory script, targeting `bin/publish/win-x64`. Review bundled asset provenance
+and update the notices manually.
 
 `build` reads `macrodeck-build.json`, publishes each runtime identifier the manifest declares into its
 `runtimes/<rid>/` slot and packs the result. `--rid <rid>` builds one platform, for a CI matrix job.
