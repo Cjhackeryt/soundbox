@@ -14,6 +14,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for playback speed / pitch adjustments.
 - Multi-channel simultaneous playback (sound layering).
 
+## [1.0.13] - 2026-10-25
+
+### Fixed
+- When widget data is unavailable for a built-in Action Button, the host-generated "Button" descriptor is no longer restored as configured label text.
+- Added regression coverage for both unlabeled and labeled buttons when widget data is unavailable.
+
+## [1.0.12] - 2026-10-25
+
+### Fixed
+- Show Timer now restores a widget with no configured label as blank instead of using Macro Deck's default "button" label.
+- Countdown label snapshots now distinguish an unset appearance label from a state's name in the widget data.
+- Added a regression test for an unlabeled widget whose host descriptor reports the default "button" label.
+
+## [1.0.11] - 2026-10-25
+
+### Fixed
+- Fixed Show Timer erasing a button's configured label when playback ended. Countdown cleanup now writes the original label back to the same widget state instead of clearing the label property.
+- Added a regression test that models Macro Deck persisting appearance changes and verifies the configured label survives timer cleanup.
+
+## [1.0.10] - 2026-10-24
+
+### Fixed
+- Bound countdown updates and restoration to the widget state active when playback starts, so state changes during playback do not leave the timer text behind.
+
+### Changed
+- Upgraded the Macro Deck SDK and publishing CLI to `3.0.0-beta.19`. Minimum Macro Deck compatibility is now `3.0.0-beta.18`.
+
+## [1.0.9] - 2026-10-08
+
+### Fixed
+- Prevented Play Sound and device pickers from faulting when NAudio encounters a null Core Audio endpoint.
+- Refreshed the Core Audio enumerator for each device query and playback start so reconfiguration uses current device state.
+
+### Changed
+- Upgraded the Macro Deck SDK and publishing CLI to `3.0.0-beta.15`.
+
+## [1.0.8] - 2026-09-29
+
+### Added
+- New plugin settings page for the **Primary Output Device**: the main Windows output SoundBox plays through, chosen once instead of on every button.
+- Play Sound's output picker is now the optional **Secondary Output Device**. Leave it empty to play only the primary device, or pick a second device to play both together. The Monitor toggle is unchanged and still echoes through the Windows default device.
+
+### Fixed
+- The secondary output picker no longer comes back empty when device enumeration fails; it always offers at least the Windows default device so the action stays playable.
+- Fixed the [1.0.7] countdown restore leaving the button blank instead of returning its configured text: Play Sound has a per-button **Show Timer** toggle. With it off, the widget label is never overridden, so it can no longer be left blank. With it on, the countdown restore now targets the widget's current state and sends the reset sentinel together with the cleared label, so the original name comes back reliably.
+
+## [1.0.7] - 2026-09-27
+
+### Added
+- Play Sound now counts down on its own widget while the sound plays, and returns the widget to its configured text and icon when playback ends. No variable, widget or extra configuration is needed.
+- Each Play Sound action instance drives its own countdown from its own `OwnerWidgetId`, so several sound buttons stay independent and each one shows the duration of the sound configured on it.
+
+### Changed
+- Marked the `soundbox_playback_remaining` variable as deprecated in its description. It still works for configurations that already reference it, but the widget countdown no longer depends on it.
+
+### Known issue (fixed in 1.0.8)
+- Restoring the widget after the countdown could leave the button blank instead of returning its configured text. 1.0.8 adds a per-button **Show Timer** toggle and a hardened restore.
+
+## [1.0.6] - 2026-09-27
+
+### Added
+- New Macro Deck text variable `soundbox_playback_remaining` showing the time left in the currently playing sound as `MM:SS` (widening to `HH:MM:SS` past an hour).
+- The variable is derived from the audio engine's live playback position, so it stays in step with what is being heard, follows loop restarts, and reads `00:00` whenever nothing is playing.
+- The variable refreshes roughly every 300 ms while it is bound, with no additional timer or background thread in the plugin.
+- Automated tests that play real audio through a Windows output device and assert the countdown, plus generated silent WAV fixtures so the suite needs no binary asset.
+
+### Changed
+- Upgraded the Macro Deck SDK from `3.0.0-beta.12` to `3.0.0-beta.14` and pinned the release workflow's Macro Deck Plugin CLI to the same version. The plugin's `IVariableProvider` contract and the negotiated protocol range are unchanged between the two releases, so required host compatibility stays at `>= 3.0.0-beta.12`.
+
 ## [1.0.5] - 2026-09-23
 
 ### Changed

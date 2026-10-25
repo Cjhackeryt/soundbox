@@ -8,12 +8,137 @@ This document outlines release packages, distribution channels, and installation
 
 | Channel | Target Audience | Compatibility | Recommended Source |
 | :--- | :--- | :--- | :--- |
-| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>= 3.0.0-beta.12` | Macro Deck Extension Store |
+| **Stable / Beta** | General Macro Deck 3 users | Macro Deck `>=3.0.0-beta.18` | Macro Deck Extension Store |
 | **GitHub Releases** | Developers, early testers | Windows 10/11 x64 | `.macroDeckPlugin` release assets |
 
 ---
 
 ## Release History
+
+### Version 1.0.13 (2026-10-25)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.18`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Unlabeled buttons remain blank after a countdown, including on hosts that do not expose widget data to SoundBox.
+- Configured labels are still restored when widget data is unavailable.
+- Verified against the live Macro Deck 3 beta.19 host.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.13.macroDeckPlugin`
+
+
+### Version 1.0.12 (2026-10-25)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.18`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Unlabeled buttons stay blank after the countdown ends instead of receiving the default "button" label.
+- Widget state names are no longer mistaken for configured appearance labels.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.12.macroDeckPlugin`
+
+
+### Version 1.0.11 (2026-10-25)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.18`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Countdown cleanup writes back the configured label instead of deleting it, fixing buttons whose text disappeared after the timer ended.
+- The regression test models the host's persisted widget appearance behavior.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.11.macroDeckPlugin`
+
+
+### Version 1.0.10 (2026-10-24)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.18`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Countdown updates and cleanup now target the same widget state, restoring the configured label even if the state changes during playback.
+- Built against Macro Deck SDK and Plugin CLI `3.0.0-beta.19`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.10.macroDeckPlugin`
+
+
+### Version 1.0.9 (2026-10-08)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Core Audio device enumeration is refreshed for each query and playback, avoiding stale device references after reconfiguration.
+- NAudio null endpoint failures are handled without faulting Play Sound or the device pickers.
+- Built against Macro Deck SDK and Plugin CLI `3.0.0-beta.15`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.9.macroDeckPlugin`
+
+
+### Version 1.0.8 (2026-09-29)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- New plugin settings page for the **Primary Output Device**, chosen once instead of on every button.
+- Play Sound's output picker is now the optional **Secondary Output Device**; the Monitor toggle is unchanged.
+- The secondary picker always offers at least the Windows default device, so the action stays playable even when device enumeration fails.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.8.macroDeckPlugin`
+
+
+### Version 1.0.7 (2026-09-27)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Play Sound shows a live countdown on the widget that was pressed, then restores that widget's configured text and icon when the sound ends. Nothing extra to configure.
+- Countdowns are per action instance, so separate sound buttons remain independent and each shows the length of its own sound.
+- The `soundbox_playback_remaining` variable is kept for existing configurations but is no longer required.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.7.macroDeckPlugin`
+
+
+### Version 1.0.6 (2026-09-27)
+
+- **Package ID**: `com.cjhackeryt.soundbox`
+- **Minimum Macro Deck Version**: `3.0.0-beta.12`
+- **Supported Platforms**: `win-x64`
+- **Target Framework**: `.NET 10.0` (Framework-Dependent)
+
+#### Highlights
+- Added the Macro Deck text variable `soundbox_playback_remaining`, which shows the time left in the active playback as `MM:SS` (`HH:MM:SS` past an hour).
+- The value comes from the audio engine's own playback position, so the countdown matches the audio, wraps on loop restarts, and reports `00:00` when idle, stopped, or finished.
+- Built against Macro Deck SDK `3.0.0-beta.14` (up from `3.0.0-beta.12`). Required host compatibility is unchanged at `3.0.0-beta.12`.
+
+#### Artifacts
+- `com.cjhackeryt.soundbox-1.0.6.macroDeckPlugin`
+
 
 ### Version 1.0.5 (2026-09-23)
 
@@ -109,7 +234,7 @@ This document outlines release packages, distribution channels, and installation
 - Deadlock-free asynchronous audio thread lifecycle management.
 
 #### Artifacts
-- `com.cjhackeryt.soundbox-0.1.0-win-x64.macroDeckPlugin`
+- `com.cjhackeryt.soundbox-1.0.0-win-x64.macroDeckPlugin`
 - Self-contained binary bundle for Windows x64.
 
 ---

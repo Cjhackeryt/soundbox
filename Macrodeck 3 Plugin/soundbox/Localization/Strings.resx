@@ -71,10 +71,10 @@
     <value>WAV and MP3 files are supported.</value>
   </data>
   <data name="Actions.PlaySound.OutputDevice.Label" xml:space="preserve">
-    <value>Output Device</value>
+    <value>Secondary Output Device</value>
   </data>
   <data name="Actions.PlaySound.OutputDevice.Description" xml:space="preserve">
-    <value>The Windows output device to receive the sound.</value>
+    <value>Optional second output played together with the primary device from the plugin settings. Leave empty to play only the primary device.</value>
   </data>
   <data name="Actions.PlaySound.OutputDevice.DefaultOption" xml:space="preserve">
     <value>Windows Default Playback Device</value>
@@ -100,6 +100,12 @@
   <data name="Actions.PlaySound.Loop.Description" xml:space="preserve">
     <value>Restart the sound automatically when it ends.</value>
   </data>
+  <data name="Actions.PlaySound.ShowTimer.Label" xml:space="preserve">
+    <value>Show Timer</value>
+  </data>
+  <data name="Actions.PlaySound.ShowTimer.Description" xml:space="preserve">
+    <value>Show the remaining time on the button while the sound plays. When off, the button text is left untouched.</value>
+  </data>
   <data name="Actions.PlaySound.Errors.SoundFileRequired" xml:space="preserve">
     <value>A sound file is required.</value>
   </data>
@@ -121,5 +127,29 @@
   </data>
   <data name="Actions.StopSound.Errors.StopFailed" xml:space="preserve">
     <value>The sound could not be stopped.</value>
+  </data>
+  <data name="Config.PrimaryOutput.Title" xml:space="preserve">
+    <value>Primary Output</value>
+  </data>
+  <data name="Config.PrimaryOutput.Description" xml:space="preserve">
+    <value>The main Windows output device SoundBox plays through. Each button can add an optional secondary output.</value>
+  </data>
+  <data name="Config.PrimaryOutput.Device.Label" xml:space="preserve">
+    <value>Primary Output Device</value>
+  </data>
+  <data name="Config.PrimaryOutput.Device.Description" xml:space="preserve">
+    <value>The main Windows output device to receive the sound.</value>
+  </data>
+  <data name="Config.PrimaryOutput.Device.DefaultOption" xml:space="preserve">
+    <value>Windows Default Playback Device</value>
+  </data>
+  <data name="Config.PrimaryOutput.Errors.UnknownStep" xml:space="preserve">
+    <value>Unknown configuration step.</value>
+  </data>
+  <data name="Variables.PlaybackRemaining.DisplayName" xml:space="preserve">
+    <value>Playback Remaining</value>
+  </data>
+  <data name="Variables.PlaybackRemaining.Description" xml:space="preserve">
+    <value>Deprecated: Play Sound now shows its own countdown on the widget, so this is no longer needed. Time left in the sound that is currently playing, as MM:SS. Reads 00:00 when nothing is playing.</value>
   </data>
 </root>

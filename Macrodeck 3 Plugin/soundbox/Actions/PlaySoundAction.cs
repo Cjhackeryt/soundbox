@@ -4,6 +4,8 @@ using MacroDeck.Sdk;
 using MacroDeck.Sdk.Actions;
 using Serilog;
 using SoundBox.Audio;
+using SoundBox.Config;
+using SoundBox.Widgets;
 
 namespace SoundBox.Actions;
 
@@ -14,13 +16,24 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
     private const string Monitor = "monitor";
     private const string Volume = "volume";
     private const string Loop = "loop";
+    private const string ShowTimer = "showTimer";
     private readonly AudioManager _audioManager;
+    private readonly PlaybackCountdownService _countdown;
+    private readonly PlaybackRouting _routing;
     private readonly ILogger _logger;
 
-    public PlaySoundAction(AudioManager audioManager, ILogger logger)
+    public PlaySoundAction(AudioManager audioManager, PlaybackCountdownService countdown, PlaybackRouting routing, ILogger logger)
     {
         _audioManager = audioManager;
+        _countdown = countdown;
+        _routing = routing;
         _logger = logger.ForContext<PlaySoundAction>();
+    }
+
+    /// <summary>Kept so existing tests and callers without a routing holder still compile; the primary output falls back to the Windows default.</summary>
+    public PlaySoundAction(AudioManager audioManager, PlaybackCountdownService countdown, ILogger logger)
+        : this(audioManager, countdown, new PlaybackRouting(), logger)
+    {
     }
 
 	public string Id => "play-sound";
@@ -31,13 +44,14 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 	public IReadOnlyList<ActionParameter> Parameters =>
 	[
 		ActionParameter.File(SoundFile, Strings.Actions.PlaySound.SoundFile.Label(), Strings.Actions.PlaySound.SoundFile.Description(), ["wav", "mp3"], true),
-		ActionParameter.DynamicChoice(OutputDevice, Strings.Actions.PlaySound.OutputDevice.Label(), Strings.Actions.PlaySound.OutputDevice.Description(), required: true),
+		ActionParameter.DynamicChoice(OutputDevice, Strings.Actions.PlaySound.OutputDevice.Label(), Strings.Actions.PlaySound.OutputDevice.Description(), required: false),
 		ActionParameter.Toggle(Monitor, Strings.Actions.PlaySound.Monitor.Label(), Strings.Actions.PlaySound.Monitor.Description(), true),
 		ActionParameter.Slider(Volume, 0, 100, Strings.Actions.PlaySound.Volume.Label(), Strings.Actions.PlaySound.Volume.Description(), 1, 100),
-		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description())
+		ActionParameter.Toggle(Loop, Strings.Actions.PlaySound.Loop.Label(), Strings.Actions.PlaySound.Loop.Description()),
+		ActionParameter.Toggle(ShowTimer, Strings.Actions.PlaySound.ShowTimer.Label(), Strings.Actions.PlaySound.ShowTimer.Description(), true)
 	];
 
-	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _logger);
+	public IActionExecutor CreateExecutor() => new Executor(_audioManager, _countdown, _routing, _logger);
 
 	public Task<DynamicOptionsResult> GetDynamicOptionsAsync(DynamicOptionsContext context, CancellationToken cancellationToken)
 	{
@@ -62,12 +76,17 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 
 			return Task.FromResult(new DynamicOptionsResult { Options = [.. options], CacheSeconds = 5 });
 		}
-		catch (COMException exception)
+		catch (Exception exception)
 		{
+			// Never leave the picker empty: enumeration can fail for host-specific
+			// reasons beyond COM, and the default device still resolves at play time.
 			_logger.Warning(exception, "Unable to enumerate Windows audio output devices.");
 			return Task.FromResult(new DynamicOptionsResult
 			{
-				Options = [],
+				Options =
+				[
+					new ActionParameterOption { Value = "default", Label = Strings.Actions.PlaySound.OutputDevice.DefaultOption() }
+				],
 				Error = Strings.Actions.PlaySound.OutputDevice.Unavailable()
 			});
 		}
@@ -76,46 +95,63 @@ public sealed class PlaySoundAction : IDynamicOptionsActionDefinition
 	private sealed class Executor : IActionExecutor
 	{
 		private readonly AudioManager _audioManager;
+		private readonly PlaybackCountdownService _countdown;
+		private readonly PlaybackRouting _routing;
 		private readonly ILogger _logger;
 
-		public Executor(AudioManager audioManager, ILogger logger)
+		public Executor(AudioManager audioManager, PlaybackCountdownService countdown, PlaybackRouting routing, ILogger logger)
 		{
 			_audioManager = audioManager;
+			_countdown = countdown;
+			_routing = routing;
 			_logger = logger;
 		}
 
-		public Task<ActionResult> ExecuteAsync(ActionExecutionContext context)
+		public async Task<ActionResult> ExecuteAsync(ActionExecutionContext context)
 		{
 			context.CancellationToken.ThrowIfCancellationRequested();
 
 			var rawPath = GetString(context, SoundFile);
 			if (string.IsNullOrWhiteSpace(rawPath))
 			{
-				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileRequired()));
+				return ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileRequired());
 			}
 
 			var filePath = rawPath.Trim('"', ' ');
 			if (!File.Exists(filePath))
 			{
-				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileNotFound(filePath)));
+				return ActionResult.Failed(ActionErrorCodes.InvalidParameter, Strings.Actions.PlaySound.Errors.SoundFileNotFound(filePath));
 			}
 
 			var outputDevice = GetString(context, OutputDevice);
 			var monitor = GetBool(context, Monitor, true);
 			var volume = GetInt(context, Volume, 100);
 			var loop = GetBool(context, Loop);
+			var showTimer = GetBool(context, ShowTimer, true);
 
 			try
 			{
-				return _audioManager.Play(filePath, outputDevice, monitor, volume, loop)
-					? ActionResult.SucceededTask
-					: Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.NoDeviceFound()));
+				if (!_audioManager.Play(filePath, _routing.PrimaryOutputDeviceId, outputDevice, monitor, volume, loop))
+				{
+					return ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.NoDeviceFound());
+				}
 			}
 			catch (Exception exception) when (exception is IOException or InvalidOperationException or ArgumentException or NotSupportedException or COMException)
 			{
 				_logger.Error(exception, "Sound playback failed for {FilePath}", filePath);
-				return Task.FromResult(ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.PlaybackFailed()));
+				return ActionResult.Failed(ActionErrorCodes.Unavailable, Strings.Actions.PlaySound.Errors.PlaybackFailed());
 			}
+
+			// The countdown belongs to the widget that was pressed, so it is driven by this
+			// action instance's own widget rather than by a shared variable. When the timer
+			// is off the widget is left completely alone: no override is ever applied, so
+			// there is nothing to restore afterwards either.
+			if (showTimer && context.OwnerWidgetId is { Length: > 0 } ownerWidgetId)
+			{
+				await _countdown.StartAsync(ownerWidgetId, context.CancellationToken);
+			}
+
+			return ActionResult.Success();
 		}
 
 		private static string? GetString(ActionExecutionContext context, string name) =>
